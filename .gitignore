@@ -1,0 +1,32 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# DB
+*.db
+
+# Config
+.env
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+*.tmp
+
+# Excel temporales
+*.xls
+*.xlsx
+
+# Imágenes y PDFs generados
+*.png
+*.jpg
+*.pdf
+
+# OS
+.DS_Store
+Thumbs.db

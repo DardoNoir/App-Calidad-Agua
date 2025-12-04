@@ -1,0 +1,9 @@
+customtkinter
+pandas
+openpyxl
+matplotlib
+reportlab
+numpy
+python-dateutil
+pydantic
+bcrypt
