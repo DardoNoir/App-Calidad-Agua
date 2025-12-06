@@ -6,6 +6,7 @@ from src.data.repository import (
     insertarValorMedido,
     traerParametros,
     traerValoresReferencia,
+    insertarParametro
 )
 
 from src.analysis.evaluacion import EvaluarParametro
@@ -22,6 +23,9 @@ def probar_backend():
     print("Medición:", idMed)
 
     # Parámetro
+    par = insertarParametro("1111","PH","grs")
+    print("Parametro: ",par)
+
     parametros = traerParametros()
     param = parametros[0]
     print("Parametro:", param)

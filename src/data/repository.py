@@ -63,6 +63,33 @@ def insertarLugar(
             raise RuntimeError("Error inesperado: lastrowid es None")
 
         return int(last_id)
+
+def insertarParametro(codigo: str,nombreParametro:str, unidad:str, db_path: Optional[str] = None) -> int:
+     with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id FROM parametro
+            WHERE codigo = ? AND nombreParametro = ? AND unidad = ?
+            """,
+            (codigo, nombreParametro, unidad)
+        )
+        row = cur.fetchone()
+        
+        if row is not None and row["id"] is not None:
+            return int(row["id"])
+
+        cur.execute("""
+             INSERT INTO parametro (codigo, nombreParametro, unidad)
+            VALUES (?, ?, ?)
+            """,(codigo, nombreParametro, unidad))
+        
+        last_id = cur.lastrowid
+        if last_id is None:
+            raise RuntimeError("Error inesperado: lastrowid es None")
+
+        return int(last_id)
+
 #Mostrar los datos de un lugar
 def traerLugar(db_path: Optional[str]=None):
     with connection(db_path) as conn:
@@ -94,7 +121,6 @@ def insertarMedicion(
             raise RuntimeError("insertar_medicion: lastrowid fue None, algo salió mal.")
 
         return int(last_id)
-
 #Guardar el valor de una medición
 def insertarValorMedido(idMedicion: int, idParametro: int, valor: float, estado: str, desviacion: str, db_path: Optional[str]=None):
     with connection(db_path) as conn:
