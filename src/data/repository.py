@@ -22,6 +22,14 @@ def traerUsuarioPorNombre(nombreUsuario: str, db_path: Optional[str]=None):
         cur.execute("SELECT * FROM usuario WHERE nombreUsuario = ?", (nombreUsuario,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+def traerUsuarioPorId(id: int, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT nombreUsuario FROM usuario WHERE id = ?", (id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
+
 #Guardar un lugar    
 def insertarLugar(
     provincia: str,
@@ -63,7 +71,7 @@ def insertarLugar(
             raise RuntimeError("Error inesperado: lastrowid es None")
 
         return int(last_id)
-
+#Agregar un parametro
 def insertarParametro(codigo: str,nombreParametro:str, unidad:str, db_path: Optional[str] = None) -> int:
      with connection(db_path) as conn:
         cur = conn.cursor()
@@ -89,7 +97,6 @@ def insertarParametro(codigo: str,nombreParametro:str, unidad:str, db_path: Opti
             raise RuntimeError("Error inesperado: lastrowid es None")
 
         return int(last_id)
-
 #Mostrar los datos de un lugar
 def traerLugar(db_path: Optional[str]=None):
     with connection(db_path) as conn:
@@ -121,6 +128,14 @@ def insertarMedicion(
             raise RuntimeError("insertar_medicion: lastrowid fue None, algo salió mal.")
 
         return int(last_id)
+
+#Mostrar los datos de una medicion
+def traerMedicion(db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id, fechaMedicion, comentarios FROM medicion")
+        return[dict(row) for row in cur.fetchall()]
+
 #Guardar el valor de una medición
 def insertarValorMedido(idMedicion: int, idParametro: int, valor: float, estado: str, desviacion: str, db_path: Optional[str]=None):
     with connection(db_path) as conn:
@@ -136,6 +151,35 @@ def traerParametros(db_path: Optional[str]=None):
         cur = conn.cursor()
         cur.execute("SELECT * FROM parametro")
         return [dict(row) for row in cur.fetchall()]
+
+#Agregar valores de referencia
+def insertarValoresReferencia(idParametro: int, limiteMaxAceptable:float, limiteMaxWarning:float, db_path:Optional[str]=None) -> int:
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id FROM valorReferencia
+            WHERE idParametro = ?  
+            """
+        ,(idParametro,))
+        row = cur.fetchone()
+        
+        if row is not None and row["id"] is not None:
+            return int(row["id"])
+
+        cur.execute(
+            """
+            INSERT INTO valorReferencia
+            (idParametro, limiteMaxAceptable, limiteMaxWarning)
+            VALUES(?, ?, ?)
+            """,(idParametro, limiteMaxAceptable, limiteMaxWarning))
+        
+        last_id = cur.lastrowid
+        if last_id is None:
+            raise RuntimeError("Error inesperado: lastrowid es None")
+
+        return int(last_id)
+
 #Traer los valores de referencia de un parametro
 def traerValoresReferencia(idParametro: int, db_path: Optional[str] = None) -> Optional[ReferenciaParametro]:
     with connection(db_path) as conn:

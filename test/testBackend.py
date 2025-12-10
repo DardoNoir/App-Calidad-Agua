@@ -2,11 +2,15 @@ from datetime import datetime
 
 from src.data.repository import (
     insertarLugar,
+    traerLugar,
     insertarMedicion,
     insertarValorMedido,
     traerParametros,
     traerValoresReferencia,
-    insertarParametro
+    insertarParametro,
+    insertarValoresReferencia,
+    traerMedicion,
+    traerUsuarioPorId
 )
 
 from src.analysis.evaluacion import EvaluarParametro
@@ -16,16 +20,22 @@ def probar_backend():
 
     # Lugar
     idLugar = insertarLugar("Entre Rios", "Gualeguaychu", "Rio Gualeguaychu")
-    print("Lugar:", idLugar)
+    lugares = traerLugar()
+    lugar = lugares[0]
+    print("Lugar",lugar)
 
     # Medición
     idMed = insertarMedicion(idLugar, datetime.now(), 1, "test")
-    print("Medición:", idMed)
+    mediciones = traerMedicion()
+    medicion = mediciones[0]
+    usuario = traerUsuarioPorId(1)
+    print("Medicion: ", medicion)
+    print("Tomada por: ", usuario)
 
     # Parámetro
-    par = insertarParametro("1111","PH","grs")
-    print("Parametro: ",par)
-
+    par = insertarParametro("0001","pH"," ")
+    insertarValoresReferencia(par,limiteMaxAceptable=9.0, limiteMaxWarning=9.5)
+    
     parametros = traerParametros()
     param = parametros[0]
     print("Parametro:", param)
@@ -39,8 +49,8 @@ def probar_backend():
     print("Evaluación:", estado, desvio)
 
     # Guardado
-    idVM = insertarValorMedido(idMed, param["id"], 7.5, estado, desvio)
-    print("Valor medido:", idVM)
+    insertarValorMedido(idMed, param["id"], 7.5, estado, desvio)
+    print("Valor medido:", 7.5)
 
 if __name__ == "__main__":
     probar_backend()

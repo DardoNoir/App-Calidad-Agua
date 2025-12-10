@@ -5,7 +5,7 @@ def bootstarp():
     run_migrations()
     #Crear admin de ejemplo
     try:
-        idUsuario = crearUsuario("AAAAA", "67890", rol="Usuario")
+        idUsuario = crearUsuario("AAAAA", "12345", rol="Administrador")
         print("Usuario creado, id: ", idUsuario)
     except Exception as e:
         print("No se creó Usuario, posible duplicado: ", e)
