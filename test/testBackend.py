@@ -39,7 +39,7 @@ def probar_backend():
 
     # Parámetro
     par = insertarParametro("0001","pH"," ")
-    insertarValoresReferencia(par,limiteMaxAceptable=9.0, limiteMaxWarning=9.5)
+    insertarValoresReferencia(par,limiteMaxAceptable=9.0, limiteMaxWarning=9.5, limiteMinAceptable=6.5, limiteMinWarning=6.0)
     parametros = traerParametros()
     for parametro in parametros:
      if parametro["id"] == par:

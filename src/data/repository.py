@@ -337,11 +337,14 @@ def traerTodosLosValoresMedidos(db_path: Optional[str]=None):
 #           MANEJO DE VALORES DE REFERENCIA
 # ============================================================
 
-def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limiteMaxWarning: float, db_path: Optional[str]=None) -> int:
+def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limiteMaxWarning: float,
+                              limiteMinAceptable: float, limiteMinWarning:float, db_path: Optional[str]=None) -> int:
     """
     Inserta los valores de referencia para un parámetro:
         - Limite máximo aceptable
         - Límite de advertencia
+        - Límite mínimo aceptable
+        - Limite mínimo de advertencia
     Si ya existe un registro para ese parámetro → devuelve su ID.
     """
     with connection(db_path) as conn:
@@ -353,9 +356,10 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
             return int(row["id"])
 
         cur.execute("""
-            INSERT INTO valorReferencia (idParametro, limiteMaxAceptable, limiteMaxWarning)
-            VALUES (?, ?, ?)
-        """, (idParametro, limiteMaxAceptable, limiteMaxWarning))
+            INSERT INTO valorReferencia (idParametro, limiteMaxAceptable, limiteMaxWarning,
+                     limiteMinAceptable, limiteMinWarning)
+            VALUES (?, ?, ?, ?, ?)
+        """, (idParametro, limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning))
 
          # cur.lastrowid NUNCA es None cuando hay INSERT, pero lo tipamos igual
         last_id = cur.lastrowid
@@ -376,7 +380,7 @@ def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] 
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT limiteMaxAceptable, limiteMaxWarning
+            SELECT limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning
             FROM valorReferencia
             WHERE idParametro = ?
         """, (idParametro,))
@@ -387,7 +391,9 @@ def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] 
 
         return ReferenciaParametro(
             LimiteMax=row["limiteMaxAceptable"],
-            LimiteWarning=row["limiteMaxWarning"]
+            LimiteWarning=row["limiteMaxWarning"],
+            limiteMin=row["limiteMinAceptable"],
+            limiteMinWarning=row["limiteMinWarning"]
         )
 
 

@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS valorReferencia(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     idParametro INTEGER NOT NULL,
     limiteMaxAceptable REAL,
+    limiteMinAceptable REAL,
     limiteMaxWarning REAL,
+    limiteMinWarning REAL,
     normativa TEXT,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );
