@@ -4,13 +4,13 @@ from src.data.repository import (
     insertarLugar,
     traerLugares,
     insertarMedicion,
-    insertarValorMedido,
     traerParametros,
     traerValoresReferenciaPorParametro,
     insertarParametro,
     insertarValoresReferencia,
     traerMediciones,
-    traerUsuarioPorId
+    traerUsuarioPorId,
+    insertarValorMedido,
 )
 
 from src.analysis.evaluacion import EvaluarParametro
@@ -56,7 +56,7 @@ def probar_backend():
     print("Valor medido:", valor)
 
     # Guardado
-    insertarValorMedido(idMed, par, valor, estado, desvio)
+    insertarValorMedido(idMed, parametros, valor, estado, desvio)
 
 if __name__ == "__main__":
     probar_backend()

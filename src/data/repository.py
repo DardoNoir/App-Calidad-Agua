@@ -279,25 +279,30 @@ def traerMediciones(db_path: Optional[str]=None):
 
 
 # ---------- Valores puntuales medidos en cada medición -------------
+def insertarValorMedido(
+    idMedicion: int,
+    parametros: list[dict[str, int]],
+    valor: float,
+    estado: str,
+    desviacion: str,
+    db_path: Optional[str] = None
+) -> list[int]:
 
-def insertarValorMedido(idMedicion: int, idParametro: int, valor: float, estado: str, desviacion: str, db_path: Optional[str]=None):
-    """
-    Inserta un valor medido para una medición:
-    Ejemplo:
-        idMedicion = 12   (medición del día)
-        idParametro = 3   (pH)
-        valor = 8.2
-        estado = "Warning"
-        desviacion = "Valor supera el warning..."
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
-        cur.execute("""
+
+        ids_insertados: list[int] = []
+        for p in parametros:
+            cur.execute("""
             INSERT INTO valorMedida (idMedicion, idParametro, valor, estado, desviacion)
             VALUES (?, ?, ?, ?, ?)
-        """, (idMedicion, idParametro, valor, estado, desviacion))
-        return cur.lastrowid
+            """, (idMedicion, p["idParametro"], valor, estado,desviacion))
 
+    last_id = cur.lastrowid
+    if last_id is not None:
+        ids_insertados.append(last_id)
+
+    return ids_insertados
 
 def traerValoresMedidosDeMedicion(idMedicion: int, db_path: Optional[str]=None):
     """
