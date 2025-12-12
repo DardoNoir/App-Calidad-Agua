@@ -18,6 +18,9 @@ from src.analysis.evaluacion import EvaluarParametro
 def probar_backend():
     print("=== PRUEBA BACKEND ===")
 
+    print("Ingrese valor del Ph: ")
+    valor=float(input())
+
     # Lugar
     idLugar = insertarLugar("Entre Rios", "Gualeguaychu", "Rio Gualeguaychu")
     lugares = traerLugares()
@@ -47,13 +50,13 @@ def probar_backend():
     print("Referencia:", ref)
 
     # Evaluación
-    estado, desvio = EvaluarParametro(9.4, ref) 
+    estado, desvio = EvaluarParametro(valor, ref) 
     print("Evaluación:", estado)
     print("Desviación: ",desvio) 
+    print("Valor medido:", valor)
 
     # Guardado
-    insertarValorMedido(idMed, par, 9.4, estado, desvio)
-    print("Valor medido:", 9.4)
+    insertarValorMedido(idMed, par, valor, estado, desvio)
 
 if __name__ == "__main__":
     probar_backend()
