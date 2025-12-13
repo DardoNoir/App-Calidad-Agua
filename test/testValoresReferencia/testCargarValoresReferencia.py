@@ -5,22 +5,16 @@ from src.data.repository import (
 def pruebaCargarValoresReferencia():
     print("=== PRUEBA CARGAR VALORES DE REFERENCIA ===")
 
-    print("Nombre del parámetro: ")
-    nombre_parametro = input().strip()
+    nombre_parametro = input("Nombre del parámetro: ").strip()
     parametro = traerParametroPorNombre(nombre_parametro)
     if not parametro:
         print(f"No se encontró el parámetro con nombre '{nombre_parametro}'.")
         return
-    print("Límite máximo aceptable: ")
-    limite_max_aceptable = float(input().strip())
-    print("Límite mínimo aceptable: ")
-    limite_min_aceptable = float(input().strip())
-    print("Límite máximo de advertencia: ")
-    limite_max_warning = float(input().strip())
-    print("Límite mínimo de advertencia: ")
-    limite_min_warning = float(input().strip())
-    print("Normativa asociada: ")
-    normativa = input().strip()
+    limite_min_aceptable = float(input("Límite mínimo aceptable: ").strip())
+    limite_max_aceptable = float(input("Límite máximo aceptable: ").strip())
+    limite_min_warning = float(input("Límite mínimo de advertencia: ").strip())
+    limite_max_warning = float(input("Límite máximo de advertencia: ").strip())
+    normativa = input("Normativa asociada: ").strip()
 
     insertarValoresReferencia(
         idParametro=parametro["id"],limiteMaxAceptable=limite_max_aceptable,
@@ -28,3 +22,6 @@ def pruebaCargarValoresReferencia():
         limiteMinWarning=limite_min_warning, normativa=normativa)
     
     print(f"Valores de referencia para '{nombre_parametro}' cargados exitosamente.")
+
+if __name__ == "__main__":
+    pruebaCargarValoresReferencia()

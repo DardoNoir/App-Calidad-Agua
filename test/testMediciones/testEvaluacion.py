@@ -1,4 +1,3 @@
-#from datetime import datetime
 import src.data.repository
 import src.analysis.evaluacion
 
@@ -11,7 +10,7 @@ def pruebaMedicionCompleta():
         return
     
     for parametro in parametros:
-        print(f"Ingrese valor para el parámetro {parametro['nombre']} ({parametro['unidad']}): ")
+        print(f"Ingrese valor para el parámetro {parametro['nombreParametro']} ({parametro['unidad']}): ")
         try:
             valor = float(input())
         except ValueError:
@@ -21,8 +20,11 @@ def pruebaMedicionCompleta():
         idParametro = parametro["id"]
         ref = src.data.repository.traerValoresReferenciaPorParametro(idParametro)
         if not ref:
-            print(f"No hay valores de referencia para el parámetro {parametro['nombre']}.")
+            print(f"No hay valores de referencia para el parámetro {parametro['nombreParametro']}.")
             continue
         
         estado, desvio = src.analysis.evaluacion.EvaluarParametro(valor, ref)
-        print(f"Evaluación para {parametro['nombre']}: Estado = {estado}, Desviación = {desvio}")
+        print(f"Evaluación para {parametro['nombreParametro']}: Estado = {estado}, Desviación = {desvio}")
+
+if __name__ == "__main__":
+    pruebaMedicionCompleta()
