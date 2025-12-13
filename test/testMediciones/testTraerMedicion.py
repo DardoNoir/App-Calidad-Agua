@@ -4,7 +4,7 @@ from src.data.repository import(
 
 def traerValores():
     
-    idMed = 8
+    idMed=int(input("Ingresar Medición: "))
     medidas=traerValoresMedidosDeMedicion(idMedicion=idMed)
     
     print(f"--- Valores de la medición {idMed}---")
