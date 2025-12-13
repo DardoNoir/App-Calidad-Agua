@@ -173,7 +173,15 @@ def traerParametroPorId(idParametro: int, db_path: Optional[str]=None):
         row = cur.fetchone()
         return dict(row) if row else None
 
-
+def traerParametroPorNombre(nombreParametro: str, db_path: Optional[str]=None):
+    """
+    Devuelve un parámetro según su nombre.
+    """
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM parametro WHERE nombreParametro = ?", (nombreParametro,))
+        row = cur.fetchone()
+        return dict(row) if row else None
 # ============================================================
 #               MANEJO DE MEDICIONES
 # ============================================================
@@ -343,7 +351,8 @@ def traerTodosLosValoresMedidos(db_path: Optional[str]=None):
 # ============================================================
 
 def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limiteMaxWarning: float,
-                              limiteMinAceptable: float, limiteMinWarning:float, db_path: Optional[str]=None) -> int:
+                              limiteMinAceptable: float, limiteMinWarning:float,
+                              normativa: str,  db_path: Optional[str]=None) -> int:
     """
     Inserta los valores de referencia para un parámetro:
         - Limite máximo aceptable
@@ -362,9 +371,10 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
 
         cur.execute("""
             INSERT INTO valorReferencia (idParametro, limiteMaxAceptable, limiteMaxWarning,
-                     limiteMinAceptable, limiteMinWarning)
-            VALUES (?, ?, ?, ?, ?)
-        """, (idParametro, limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning))
+                     limiteMinAceptable, limiteMinWarning, normativa)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (idParametro, limiteMaxAceptable, limiteMaxWarning, 
+              limiteMinAceptable, limiteMinWarning, normativa))
 
          # cur.lastrowid NUNCA es None cuando hay INSERT, pero lo tipamos igual
         last_id = cur.lastrowid
