@@ -308,17 +308,18 @@ def insertarValorMedido(
         cur = conn.cursor()
 
         ids_insertados: list[int] = []
+
         for p in parametros:
             cur.execute("""
-            INSERT INTO valorMedida (idMedicion, idParametro, valor, estado, desviacion)
-            VALUES (?, ?, ?, ?, ?)
-            """, (idMedicion, p["idParametro"], valor, estado,desviacion))
+                INSERT INTO valorMedida (idMedicion, idParametro, valor, estado, desviacion)
+                VALUES (?, ?, ?, ?, ?)
+                """, (idMedicion, p["idParametro"], valor, estado, desviacion))
 
-    last_id = cur.lastrowid
-    if last_id is not None:
-        ids_insertados.append(last_id)
+            if cur.lastrowid is not None:
+                ids_insertados.append(cur.lastrowid)
 
-    return ids_insertados
+        return ids_insertados
+
 
 def traerValoresMedidosDeMedicion(idMedicion: int, db_path: Optional[str]=None):
     """
