@@ -1,3 +1,5 @@
+from typing import Callable
+
 
 # Subindice ICA del pH
 def subindice_ph(valor_ph: float) -> float:
@@ -35,3 +37,36 @@ def subindice_coliformes_totales(valor_ct: float) -> float:
     else:
         return 30.0
 
+_SUBINDICES: dict[str, Callable[[float], float]] = {
+    "ph": subindice_ph,
+    "pH": subindice_ph,
+
+    "oxígeno disuelto": subindice_oxigeno_disuelto,
+    "oxigeno disuelto": subindice_oxigeno_disuelto,
+    "od": subindice_oxigeno_disuelto,
+
+    "dbo": subindice_dbo5,
+    "dbo5": subindice_dbo5,
+
+    "coliformes totales": subindice_coliformes_totales,
+    "sólidos coliformes totales": subindice_coliformes_totales,
+}
+
+
+def calcular_subindice_parametro(nombre_parametro: str, valor: float) -> float:
+    """
+    Calcula el subíndice ICA (0–100) para un parámetro dado.
+
+    Lanza ValueError si el parámetro no participa del ICA.
+    """
+
+    clave = nombre_parametro.strip().lower()
+
+    for nombre, funcion in _SUBINDICES.items():
+        if clave == nombre.lower():
+            return funcion(valor)
+
+    raise ValueError(
+        f"El parámetro '{nombre_parametro}' no tiene "
+        "subíndice ICA definido"
+    )
