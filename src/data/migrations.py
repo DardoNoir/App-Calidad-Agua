@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS medicion(
     fechaMedicion DATETIME NOT NULL,
     medidaTomadaPor INTEGER NOT NULL,
     comentarios TEXT,
-    estadoGeneral TEXT,
+    ica REAL,
+    clasificacionICA TEXT,
     cargadaSistema DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (idLugar) REFERENCES lugar(id),
     FOREIGN KEY (medidaTomadaPor) REFERENCES usuario(id)
@@ -74,6 +75,14 @@ CREATE TABLE IF NOT EXISTS movimiento(
     comentario TEXT,
     FOREIGN KEY (idUsuario) REFERENCES usuario(id)
 );
+
+CREATE TABLE IF NOT EXISTS ponderacionParametro(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    idParametro INTEGER NOT NULL,
+    ponderacion REAL NOT NULL CHECK (ponderacion >= 0 AND ponderacion <= 1),
+    activo INTEGER DEFAUL 1,
+    FOREIGN KEY (idParametro) REFERENCES parametro(id)
+);  
 """
 
 def run_migrations(db_path: str | None = None):

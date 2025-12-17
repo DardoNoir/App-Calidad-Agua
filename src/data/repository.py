@@ -285,6 +285,14 @@ def traerMediciones(db_path: Optional[str]=None):
         cur.execute("SELECT * FROM medicion")
         return [dict(row) for row in cur.fetchall()]
 
+def actualizarICAMedicion(idMedicion: int, ica: float, clasificacionICA: str, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE medicion
+            SET ica = ?, clasificacionICA = ?
+            WHERE id = ?
+        """, (ica, clasificacionICA, idMedicion))
 
 # ---------- Valores puntuales medidos en cada medición -------------
 def insertarValorMedido(
@@ -431,3 +439,37 @@ def traerValorReferenciaPorId(idValorReferencia: int, db_path: Optional[str]=Non
         cur.execute("SELECT * FROM valorReferencia WHERE id = ?", (idValorReferencia,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+# ============================================================
+#           MANEJO DE PONDERACIONES
+# ============================================================
+def insertarPonderacionParametro(idParametro: int, ponderacion: float, db_path: Optional[str]=None) -> int:
+    """
+    Inserta una ponderación para un parámetro específico.
+    - idParametro: ID del parámetro
+    - ponderacion: valor entre 0 y 1
+    Devuelve el ID del registro insertado.
+    """
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO ponderacionParametro (idParametro, ponderacion)
+            VALUES (?, ?)
+        """, (idParametro, ponderacion))
+
+         # cur.lastrowid NUNCA es None cuando hay INSERT, pero lo tipamos igual
+        last_id = cur.lastrowid
+        if last_id is None:
+            raise RuntimeError("Error inesperado: lastrowid es None")
+
+        return int(last_id)
+
+def traerPonderacionesParametroActivas(db_path: Optional[str]=None):    
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT idParametro, ponderacion
+            FROM ponderacionParametro
+            WHERE activo = 1
+        """)
+        return [dict(row) for row in cur.fetchall()]
