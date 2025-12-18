@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS ponderacionParametro(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     idParametro INTEGER NOT NULL,
     ponderacion REAL NOT NULL CHECK (ponderacion >= 0 AND ponderacion <= 1),
-    activo INTEGER DEFAUL 1,
+    activo INTEGER DEFAULT 1,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );  
 """
