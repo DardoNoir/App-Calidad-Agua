@@ -5,7 +5,6 @@ from src.data.repository import (
 )
 
 from src.analysis.calculoIca import calcular_ica, clasificar_ica
-from src.analysis.subindicesIca import calcular_subindice_parametro
 
 from typing import TypedDict, List
 
@@ -41,6 +40,20 @@ def testCalcularICA():
         print("No hay ponderaciones configuradas")
         return
 
+    for p in ponderaciones:
+        for v in valores:
+            if p["idParametro"] == v["idParametro"]:
+                print(f"Parámetro {v['nombreParametro']} tiene ponderación {p['ponderacion']}")
+                print(f"Mantiene el valor de la ponderación? (s/n): ", end="")
+                respuesta = input().strip().lower()
+                if respuesta == "n":
+                    try:
+                        nueva_ponderacion = float(input("Ingrese nueva ponderación: "))
+                        p["ponderacion"] = nueva_ponderacion
+                    except ValueError:
+                        print("Ponderación inválida, se mantiene la anterior.")
+                break
+
     ponderacionesPorParametro = {
         p["idParametro"]: p["ponderacion"] for p in ponderaciones
     }
@@ -60,10 +73,7 @@ def testCalcularICA():
             )
             continue
 
-        sub = calcular_subindice_parametro(
-            nombre_parametro=v["nombreParametro"],
-            valor=v["valor"]
-        )
+        sub = int(input(f"Ingrese subíndice calculado para {v['nombreParametro']}: "))
 
         ponderacion = ponderacionesPorParametro[idParametro]
 
