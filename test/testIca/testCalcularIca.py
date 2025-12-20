@@ -5,6 +5,7 @@ from src.data.repository import (
 )
 
 from src.analysis.calculoIca import calcular_ica, clasificar_ica
+from src.analysis.subindices import calcular_subindice_parametro
 
 from typing import TypedDict, List
 
@@ -73,7 +74,10 @@ def testCalcularICA():
             )
             continue
 
-        sub = int(input(f"Ingrese subíndice calculado para {v['nombreParametro']}: "))
+        sub = calcular_subindice_parametro(
+            nombre_parametro=v["nombreParametro"],
+            valor=v["valor"]
+        )
 
         ponderacion = ponderacionesPorParametro[idParametro]
 
