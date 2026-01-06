@@ -5,6 +5,37 @@ class subindice(TypedDict):
     subindice: float
     ponderacion: float
 
+def ajustar_ponderaciones(ponderacionesBase: dict[int, float],
+                          parametrosMedidos: List[int]) -> dict[int, float]:
+    """
+    Redistribuye las ponderaciones de los parámetros no medidos
+    entre los parámetros medidos, manteniendo suma total = 1.
+
+    ponderaciones_base: {idParametro: ponderacion}
+    parametros_medidos: [idParametro, ...]
+
+    Retorna:
+        dict {idParametro: ponderacion_ajustada}
+    """
+    medidos = set(parametrosMedidos)
+    todos = set(ponderacionesBase.keys())
+    noMedidos = todos - medidos
+
+    if not medidos:
+        raise ValueError("No hay parámetros para calcular el ICA.")
+
+    sumaNoMedidos = sum(ponderacionesBase[idParam] for idParam in noMedidos)
+
+    extraPorParametro = sumaNoMedidos / len(medidos)
+    ponderacionesAjustadas: dict[int, float] = {}
+
+    for idParam in medidos:
+        ponderacionesAjustadas[idParam] = ponderacionesBase[idParam] + extraPorParametro
+
+    return ponderacionesAjustadas
+
+
+
 def calcular_ica(subindices: List[subindice]) -> float:
     """
     Calcula el Índice de Calidad del Agua (ICA) basado en los subíndices y ponderaciones proporcionadas.

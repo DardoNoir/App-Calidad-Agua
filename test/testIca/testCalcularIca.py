@@ -4,7 +4,12 @@ from src.data.repository import (
     actualizarICAMedicion,
 )
 
-from src.analysis.calculoIca import calcular_ica, clasificar_ica
+from src.analysis.calculoIca import (
+    calcular_ica,
+    clasificar_ica,
+    ajustar_ponderaciones
+)
+from src.analysis.subindices import calcular_subindice_parametro
 
 from typing import TypedDict, List
 
@@ -33,49 +38,66 @@ def testCalcularICA():
         return
 
     # -------------------------------------------------
-    # 2. Traer ponderaciones activas
+    # 2. Traer ponderaciones base (FIJAS)
     # -------------------------------------------------
     ponderaciones = traerPonderacionesParametroActivas()
     if not ponderaciones:
         print("No hay ponderaciones configuradas")
         return
 
-    for p in ponderaciones:
-        for v in valores:
-            if p["idParametro"] == v["idParametro"]:
-                print(f"Parámetro {v['nombreParametro']} tiene ponderación {p['ponderacion']}")
-                print(f"Mantiene el valor de la ponderación? (s/n): ", end="")
-                respuesta = input().strip().lower()
-                if respuesta == "n":
-                    try:
-                        nueva_ponderacion = float(input("Ingrese nueva ponderación: "))
-                        p["ponderacion"] = nueva_ponderacion
-                    except ValueError:
-                        print("Ponderación inválida, se mantiene la anterior.")
-                break
-
-    ponderacionesPorParametro = {
-        p["idParametro"]: p["ponderacion"] for p in ponderaciones
+    ponderaciones_base = {
+        p["idParametro"]: p["ponderacion"]
+        for p in ponderaciones
     }
 
     # -------------------------------------------------
-    # 3. Construcción de subíndices
+    # 3. Detectar parámetros medidos
+    # -------------------------------------------------
+    parametros_medidos = [
+        v["idParametro"]
+        for v in valores
+        if v["idParametro"] in ponderaciones_base
+    ]
+
+    if not parametros_medidos:
+        print("Ningún parámetro medido participa del ICA")
+        return
+
+    # -------------------------------------------------
+    # 4. Ajustar ponderaciones (redistribución)
+    # -------------------------------------------------
+    try:
+        ponderaciones_ajustadas = ajustar_ponderaciones(
+            ponderaciones_base,
+            parametros_medidos
+        )
+    except ValueError as e:
+        print(str(e))
+        return
+
+    # -------------------------------------------------
+    # 5. Construcción de subíndices
     # -------------------------------------------------
     subindices: List[SubIndiceICA] = []
 
-    print("\n--- Subíndices ---")
+    print("\n--- Subíndices (ponderaciones ajustadas) ---")
+
     for v in valores:
         idParametro = v["idParametro"]
+        nombre = v["nombreParametro"]
+        valor = v["valor"]
 
-        if idParametro not in ponderacionesPorParametro:
-            print(
-                f"Parámetro {v['nombreParametro']} no participa del ICA"
-            )
+        if idParametro not in ponderaciones_ajustadas:
+            print(f"Parámetro {nombre} no participa del ICA")
             continue
 
-        sub = int(input(f"Ingrese subíndice calculado para {v['nombreParametro']}: "))
+        try:
+            sub = calcular_subindice_parametro(nombre, valor)
+        except ValueError as e:
+            print(str(e))
+            continue
 
-        ponderacion = ponderacionesPorParametro[idParametro]
+        ponderacion = ponderaciones_ajustadas[idParametro]
 
         subindices.append({
             "idParametro": idParametro,
@@ -84,8 +106,10 @@ def testCalcularICA():
         })
 
         print(
-            f"{v['nombreParametro']} → "
-            f"Valor: {v['valor']} | Sub: {sub} | Ponderación: {ponderacion}"
+            f"{nombre} → "
+            f"Valor: {valor} | "
+            f"Subíndice: {sub} | "
+            f"Ponderación ajustada: {ponderacion:.3f}"
         )
 
     if not subindices:
@@ -93,13 +117,13 @@ def testCalcularICA():
         return
 
     # -------------------------------------------------
-    # 4. Cálculo ICA
+    # 6. Cálculo ICA
     # -------------------------------------------------
     ica = calcular_ica(subindices)
     clasificacion = clasificar_ica(ica)
 
     # -------------------------------------------------
-    # 5. Persistencia
+    # 7. Persistencia
     # -------------------------------------------------
     actualizarICAMedicion(
         idMedicion=idMedicion,
@@ -108,10 +132,10 @@ def testCalcularICA():
     )
 
     # -------------------------------------------------
-    # 6. Resultado
+    # 8. Resultado
     # -------------------------------------------------
     print("\n=== RESULTADO ICA ===")
-    print(f"ICA: {ica}")
+    print(f"ICA: {ica:.2f}")
     print(f"Clasificación: {clasificacion}")
     print("✔ ICA calculado y guardado correctamente")
 

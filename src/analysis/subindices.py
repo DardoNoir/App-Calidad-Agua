@@ -1,58 +1,91 @@
 from typing import Callable
+import math
 
 
 # =================================================
-# SUBÍNDICES SEGÚN GRÁFICOS DEL INFORME ICA
+# SUBÍNDICES CONTINUOS SEGÚN GRÁFICOS DEL INFORME ICA
 # =================================================
 
+
 # -------------------------------------------------
-# Oxígeno disuelto 
+# Oxígeno disuelto (% de saturación) – Gráfico 1
 # -------------------------------------------------
-def subindice_oxigeno_disuelto(valor: float) -> float:
-    if valor >= 7.0:
-        return 100.0
-    elif valor >= 6.0:
-        return 80.0
-    elif valor >= 5.0:
-        return 60.0
-    elif valor >= 4.0:
-        return 30.0
-    elif valor >= 3.0:
-        return 10.0
-    else:
+def subindice_oxigeno_disuelto(od_sat: float) -> float:
+    if od_sat <= 0:
         return 0.0
+
+    if od_sat >= 100:
+        return 100.0
+
+    if od_sat <= 10:
+        # 0 → 0 | 10 → 6
+        return 0.6 * od_sat
+
+    elif od_sat <= 40:
+        # 10 → 6 | 40 → 30
+        return 0.8 * od_sat - 2
+
+    elif od_sat <= 90:
+        # 40 → 30 | 90 → 90
+        return 1.2 * od_sat - 18
+
+    else:
+        # 90 → 90 | 100 → 100
+        return od_sat
+
 
 
 # -------------------------------------------------
 # DBO5 (mg/L) – Gráfico 2
 # -------------------------------------------------
-def subindice_dbo5(dbo5: float) -> float:
-    if dbo5 <= 3:
+def subindice_dbo5(dbo: float) -> float:
+    """
+    dbo: Demanda Bioquímica de Oxígeno (mg/L)
+    """
+    if dbo <= 0:
         return 100.0
-    elif dbo5 <= 6:
-        return 80.0
-    elif dbo5 <= 10:
-        return 60.0
-    elif dbo5 <= 20:
-        return 30.0
-    elif dbo5 <= 30:
-        return 10.0
+    if dbo > 30:
+        return 2.05
+
+    if dbo <= 5:
+        return -2*dbo + 100
+    elif dbo <= 10:
+        return -4*dbo + 110
+    elif dbo <= 20:
+        return -3*dbo + 100
     else:
-        return 0.0
+        return -2*dbo + 80
+
 
 
 # -------------------------------------------------
 # pH – Gráfico 3
 # -------------------------------------------------
 def subindice_ph(ph: float) -> float:
-    if 7.0 <= ph <= 8.5:
-        return 90.0
-    elif 6.5 <= ph < 7.0 or 8.5 < ph <= 9.0:
-        return 70.0
-    elif 6.0 <= ph < 6.5 or 9.0 < ph <= 9.5:
-        return 40.0
+    if ph < 2:
+        return 2.02
+    if ph > 12:
+        return 3.02
+
+    if ph < 3:
+        return 20*ph - 20
+    elif ph < 4:
+        return 20*ph - 40
+    elif ph < 5:
+        return 30*ph - 80
+    elif ph < 6:
+        return 20*ph
+    elif ph <= 8:
+        return -10*(ph - 7)**2 + 100
+    elif ph <= 9:
+        return -30*ph + 340
+    elif ph <= 10:
+        return -30*ph + 300
+    elif ph <= 11:
+        return -20*ph + 240
     else:
-        return 0.0
+        return 3.02
+
 
 
 # -------------------------------------------------
@@ -62,11 +95,9 @@ def subindice_turbidez(ntu: float) -> float:
     if ntu <= 10:
         return 100.0
     elif ntu <= 50:
-        return 50.0
-    elif ntu <= 100:
-        return 30.0
+        return 100.0 - 1.5 * (ntu - 10)
     elif ntu <= 200:
-        return 10.0
+        return max(0.0, 40.0 - 0.4 * (ntu - 50))
     else:
         return 0.0
 
@@ -77,12 +108,10 @@ def subindice_turbidez(ntu: float) -> float:
 def subindice_color(color: float) -> float:
     if color <= 50:
         return 100.0
-    elif color <= 100:
-        return 70.0
     elif color <= 150:
-        return 40.0
-    elif color <= 200:
-        return 20.0
+        return 100.0 - 0.6 * (color - 50)
+    elif color <= 250:
+        return max(0.0, 20.0 - 0.2 * (color - 150))
     else:
         return 0.0
 
@@ -91,34 +120,34 @@ def subindice_color(color: float) -> float:
 # Transparencia (cm) – Gráfico 6
 # -------------------------------------------------
 def subindice_transparencia(cm: float) -> float:
-    if cm >= 50:
-        return 90.0
-    elif cm >= 30:
-        return 60.0
-    elif cm >= 20:
-        return 40.0
-    elif cm >= 10:
-        return 20.0
-    else:
+    if cm <= 10:
         return 0.0
+    elif cm <= 35:
+        return 4.0 * (cm - 10)
+    else:
+        return min(100.0, 80.0 + 0.4 * (cm - 35))
 
 
 # -------------------------------------------------
 # Coliformes totales (NMP/100 ml) – Gráfico 7
 # -------------------------------------------------
-def subindice_coliformes_totales(nmp: float) -> float:
-    if nmp <= 100:
+def subindice_coliformes_totales(ct: float) -> float:
+    if ct <= 0:
         return 100.0
-    elif nmp <= 500:
-        return 80.0
-    elif nmp <= 1000:
-        return 70.0
-    elif nmp <= 5000:
-        return 30.0
-    elif nmp <= 10000:
-        return 10.0
-    else:
-        return 0.0
+
+    if ct < 100:
+        return 98.0
+
+    if ct <= 1000:
+        # 100 → 98 | 1000 → 70
+        return -28 * math.log10(ct) + 154
+
+    if ct <= 10000:
+        # 1000 → 70 | 10000 → 10
+        return -60 * math.log10(ct) + 250
+
+    return 0.0
+
 
 
 # =================================================
@@ -148,9 +177,8 @@ _SUBINDICES: dict[str, Callable[[float], float]] = {
 def calcular_subindice_parametro(nombre_parametro: str, valor: float) -> float:
     clave = nombre_parametro.strip().lower()
 
-    for nombre, funcion in _SUBINDICES.items():
-        if clave == nombre:
-            return funcion(valor)
+    if clave in _SUBINDICES:
+        return round(_SUBINDICES[clave](valor), 2)
 
     raise ValueError(
         f"El parámetro '{nombre_parametro}' no participa del ICA"
