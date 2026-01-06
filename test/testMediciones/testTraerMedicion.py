@@ -1,5 +1,5 @@
 from src.data.repository import(
-    traerValoresMedidosDeMedicion
+    traerValoresMedidosDeMedicion,
 )
 
 def traerValores():
