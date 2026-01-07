@@ -8,9 +8,12 @@ from src.data.repository import(
     traerLugarPorId,
     traerMedicionPorId,
     traerUsuarioPorId,
-    #traerValoresMedidosDeMedicion,
+    traerValoresMedidosDeMedicion,
     #traerValoresReferenciaPorParametro,
 )
+
+from src.reports.tables import crearTablaValoresMedidos
+
 """
 from src.charts.timeseries import graficarParametro
 from src.charts.exporter import guardar_figura
@@ -29,7 +32,9 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
     usuario = traerUsuarioPorId(medicion["medidaTomadaPor"], db_path)
     if usuario is None:
         raise RuntimeError("Usuario no encontrado")
-    #valores = traerValoresMedidosDeMedicion(idMedicion, db_path)
+    valores = traerValoresMedidosDeMedicion(idMedicion, db_path)
+    if not valores:
+        raise RuntimeError("La medición no tiene valores cargados")
 
     doc = SimpleDocTemplate(str(rutaGuardar))
     styles = getSampleStyleSheet()
@@ -42,6 +47,12 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
         styles["Normal"]))
     elementos.append(Paragraph(f"Fecha de Medición: {medicion['fechaMedicion']}", styles["Normal"]))
     elementos.append(Paragraph(f"Medida Tomada Por: {usuario['nombreUsuario']}", styles["Normal"]))
+    elementos.append(Spacer(1, 12))
+
+    elementos.append(Paragraph("Valores Medidos:", styles['Heading2']))
+    tabla_valores = crearTablaValoresMedidos(valores)
+
+    elementos.append(tabla_valores)
     elementos.append(Spacer(1, 12))
 
     doc.build(elementos)
