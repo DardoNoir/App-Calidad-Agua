@@ -2,10 +2,11 @@ from pathlib import Path
 from src.reports.pdfReport import generarReporte
 
 if __name__ == "__main__":
+    
     ruta = Path("reporte_prueba.pdf")
 
     generarReporte(
-        idMedicion=1,
+        idMedicion=5,
         rutaGuardar=ruta
     )
 

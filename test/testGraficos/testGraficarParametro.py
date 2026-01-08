@@ -6,13 +6,13 @@ from src.data.repository import(
 )
 import matplotlib.pyplot as plot 
 
-serie = traerSeriesParametroPorLugar(idLugar=1, idParametro=4)
+serie = traerSeriesParametroPorLugar(idLugar=1, idParametro=1)
 
-param = traerParametroPorId(4)
+param = traerParametroPorId(1)
 if param is None:
     raise ValueError("Parámetro inexistente")
 
-ref = traerValoresReferenciaPorParametro(4)
+ref = traerValoresReferenciaPorParametro(1)
 
 fig = graficarParametro(
     fechas=[s["fecha"] for s in serie],

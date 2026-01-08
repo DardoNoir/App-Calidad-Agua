@@ -12,18 +12,7 @@ def traerSeriesParametroPorLugar(
     fechaFin: Optional[datetime] = None,
     db_path: Optional[str] = None
 ) -> List[dict[str, Any]]:
-    """
-    Devuelve una serie temporal de un parámetro en un lugar.
-
-    Estructura:
-    [
-        {
-            "fecha": datetime,
-            "valor": float
-        }
-    ]
-    """
-
+    
     query = """
         SELECT
             m.fechaMedicion AS fecha,
@@ -61,3 +50,26 @@ def traerSeriesParametroPorLugar(
             })
 
         return filas # type: ignore
+
+
+def traerSerieCompletaParametroLugar(idLugar: int, idParametro: int, db_path: Optional[str] = None) -> List[dict[str, Any]]:
+    query = """
+    SELECT
+        m.fechaMedicion AS fecha,
+        vm.valor AS valor
+    FROM medicion m
+    JOIN valorMedida vm
+      ON m.id = vm.idMedicion
+     AND vm.idParametro = ?
+    WHERE m.idLugar = ?
+    ORDER BY m.fechaMedicion ASC
+    """
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(query, (idParametro, idLugar))
+        return [
+            {"fecha": datetime.fromisoformat(r["fecha"]),
+             "valor": r["valor"]}
+            for r in cur.fetchall()
+        ]
+
