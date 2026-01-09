@@ -17,7 +17,8 @@ from src.data.repository import(
 from src.reports.tables import (
     crearTablaValoresMedidos,
     formatoFecha,
-    crearTablaICA
+    crearTablaICA,
+    crearTablaDatosGenerales
 )
 
 from src.charts.datasource import traerSerieCompletaParametroLugar
@@ -59,10 +60,11 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
     elementos.append(Paragraph(f"Reporte de Medición: {medicion['id']}", styles['Title']))
     elementos.append(Spacer(1, 12))
 
-    elementos.append(Paragraph(f"<u>Lugar</u>: {lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpoAgua']}",
-        styles["Normal"]))
-    elementos.append(Paragraph(f"<u>Fecha de Medición</u>: {fecha}", styles["Normal"]))
-    elementos.append(Paragraph(f"<u>Medida Tomada Por</u>: {usuario['nombreUsuario']}", styles["Normal"]))
+    tabla_info = crearTablaDatosGenerales(
+        lugar=f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpoAgua']}",
+        fecha=fecha,
+        usuario=f"{usuario['nombreUsuario']}")
+    elementos.append(tabla_info)
     elementos.append(Spacer(1, 12))
 
     # Tabla de valores medidos

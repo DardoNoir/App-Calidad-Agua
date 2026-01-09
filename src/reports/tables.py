@@ -4,51 +4,47 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors  
 from datetime import datetime
 
-def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable:
-    styles = getSampleStyleSheet()
-    normal = styles["Normal"]
-    normal.wordWrap = "CJK"  # permite salto de línea real
+def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable: 
+    styles = getSampleStyleSheet() 
+    normal = styles["Normal"] 
+    normal.wordWrap = "CJK" # permite salto de línea real 
+
+    header = styles["Normal"]
+    header.wordWrap = None
+    header.fontName = "Helvetica-Bold"
 
     data = [
-        [
-            Paragraph("<b>Parámetro</b>", normal),
-            Paragraph("<b>Valor Medido</b>", normal),
-            Paragraph("<b>Unidad</b>", normal),
-            Paragraph("<b>Estado</b>", normal),
-            Paragraph("<b>Desviación</b>", normal),
-        ]
-    ]
-
-    for valor in valores:
-        data.append([
-            Paragraph(str(valor["nombreParametro"]), normal),
-            Paragraph(str(valor["valor"]), normal),
-            Paragraph(str(valor["unidad"] or "-"), normal),
-            Paragraph(str(valor["estado"]), normal),
-            Paragraph(str(valor["desviacion"] or "-"), normal),
-        ])
-
-    table = Table(
-        data,
-        colWidths=[90, 70, 70, 70, 200],  # 👈 CLAVE
-        repeatRows=1,
-        hAlign="LEFT"
-    )
-
-    table.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 0.5, colors.black),
-        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
-        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-        ("ALIGN", (1,1), (-2,-1), "CENTER"),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
-        ("TOPPADDING", (0,0), (-1,-1), 6),
-    ]))
-
+        [ Paragraph("<b>Parámetro</b>", header), 
+         Paragraph("<b>Valor Medido</b>", header), 
+         Paragraph("<b>Unidad</b>", header), 
+         Paragraph("<b>Estado</b>", header), 
+         Paragraph("<b>Desviación</b>", header), 
+         ] 
+    ] 
+    
+    for valor in valores: 
+        data.append([ Paragraph(str(valor["nombreParametro"]), header), 
+                     Paragraph(str(valor["valor"]), normal), 
+                     Paragraph(str(valor["unidad"] or "-"), normal), 
+                     Paragraph(str(valor["estado"]), normal), 
+                     Paragraph(str(valor["desviacion"] or "-"), normal), 
+                ]) 
+        
+    table = Table( 
+        data, colWidths=[80, 80, 70, 70, 200], # 👈 CLAVE 
+        repeatRows=1, 
+        hAlign="LEFT" ) 
+    
+    table.setStyle(TableStyle([ 
+        ("GRID", (0,0), (-1,-1), 0.5, colors.black), 
+        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey), 
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"), 
+        ("ALIGN", (1,1), (-2,-1), "CENTER"), 
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"), 
+        ("BOTTOMPADDING", (0,0), (-1,-1), 6), 
+        ("TOPPADDING", (0,0), (-1,-1), 6), ])) 
+    
     return table
-
-
-
 
 
 def color_por_ica(ica: float) -> str:
@@ -100,3 +96,36 @@ def formatoFecha(fecha: Any) -> str:
         fecha = datetime.fromisoformat(fecha)
     return fecha.strftime("%d/%m/%Y %H:%M")
 
+
+def crearTablaDatosGenerales(
+    lugar: str,
+    fecha: str,
+    usuario: str
+) -> Flowable:
+    styles = getSampleStyleSheet()
+
+    etiqueta = styles["Normal"]
+    etiqueta.fontName = "Helvetica-Bold"
+
+    valor = styles["Normal"]
+
+    data = [
+        [Paragraph("Lugar:", etiqueta), Paragraph(lugar, valor)],
+        [Paragraph("Fecha de Medición:", etiqueta), Paragraph(fecha, valor)],
+        [Paragraph("Medida Tomada Por:", etiqueta), Paragraph(usuario, valor)],
+    ]
+
+    table = Table(
+        data,
+        colWidths=[130, 350],
+        hAlign="LEFT"
+    )
+
+    table.setStyle(TableStyle([
+        ("ALIGN", (0,0), (0,-1), "RIGHT"),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 6),
+    ]))
+
+    return table
