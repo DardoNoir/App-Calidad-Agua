@@ -9,21 +9,20 @@ def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable:
     normal = styles["Normal"] 
     normal.wordWrap = "CJK" # permite salto de línea real 
 
-    header = styles["Normal"]
-    header.wordWrap = None
-    header.fontName = "Helvetica-Bold"
+    acomodar = styles["Normal"]
+    acomodar.wordWrap = None  # sin salto de línea
 
     data = [
-        [ Paragraph("<b>Parámetro</b>", header), 
-         Paragraph("<b>Valor Medido</b>", header), 
-         Paragraph("<b>Unidad</b>", header), 
-         Paragraph("<b>Estado</b>", header), 
-         Paragraph("<b>Desviación</b>", header), 
+        [ Paragraph("<b>Parámetro</b>", normal), 
+         Paragraph("<b>Valor Medido</b>", normal), 
+         Paragraph("<b>Unidad</b>", normal), 
+         Paragraph("<b>Estado</b>", normal), 
+         Paragraph("<b>Desviación</b>", normal), 
          ] 
     ] 
     
     for valor in valores: 
-        data.append([ Paragraph(str(valor["nombreParametro"]), header), 
+        data.append([ Paragraph(str(valor["nombreParametro"]), acomodar), 
                      Paragraph(str(valor["valor"]), normal), 
                      Paragraph(str(valor["unidad"] or "-"), normal), 
                      Paragraph(str(valor["estado"]), normal), 
