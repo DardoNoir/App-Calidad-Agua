@@ -6,7 +6,7 @@ if __name__ == "__main__":
     ruta = Path("reporte_prueba.pdf")
 
     generarReporte(
-        idMedicion=5,
+        idMedicion=2,
         rutaGuardar=ruta
     )
 
