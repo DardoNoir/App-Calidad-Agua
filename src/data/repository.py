@@ -3,6 +3,7 @@ from src.utils.security import hash_password
 from typing import Optional
 from datetime import datetime
 from src.analysis.evaluacion import ReferenciaParametro
+from src.utils.security import verify_password, hash_password
 
 # ============================================================
 #                 MANEJO DE USUARIOS
@@ -60,6 +61,27 @@ def traerUsuarioPorId(id: int, db_path: Optional[str]=None):
         return dict(row) if row else None
 
 
+from src.utils.security import verify_password
+
+def autenticarUsuario(nombreUsuario: str, password: str, db_path=None):
+    usuario = traerUsuarioPorNombre(nombreUsuario, db_path)
+    if not usuario:
+        return None
+
+    if not verify_password(password, usuario["password"]):
+        print("Contraseña incorrecta")
+        return None
+
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE usuario SET ultimoInicio = CURRENT_TIMESTAMP WHERE id = ?",
+            (usuario["id"],)
+        )
+
+    return usuario
+
+    
 # ============================================================
 #               MANEJO DE LUGARES
 # ============================================================
