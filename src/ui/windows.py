@@ -16,11 +16,8 @@ class App(ctk.CTk):
            
     def show_login(self):
         self.clear()
-        self.current_frame = LoginWindow(self, self.show_dashboard)
-        self.current_frame.pack(fill="both", expand=True)
-
+        LoginWindow(self, self.show_dashboard)
+    
     def show_dashboard(self):
-        print("Mostrando dashboard")
         self.clear()
-        self.current_frame = Dashboard(self)
-        self.current_frame.pack(fill="both", expand=True)
+        Dashboard(self)

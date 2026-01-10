@@ -1,21 +1,25 @@
-from typing import Any, Tuple
+from typing import Any
 import customtkinter as ctk
-from src.ui.session import currentUser, SesionUsuario
+import src.ui.session as session
+from src.ui.session import SesionUsuario
 
 class Dashboard(ctk.CTkFrame):   
     def __init__(self, master):
         super().__init__(master)
-        self.pack(fill="both",expand=True)
+        self.pack(fill="both", expand=True)
 
-        if currentUser is None:
+        print("USUARIO:", session.currentUser)
+
+        if session.currentUser is None:
             raise RuntimeError("Dashboard abierto sin usuario autenticado")
-        user = currentUser
 
+        user = session.currentUser
 
         ctk.CTkLabel(
             self, 
-            text= f"Bienvenido {user.nombreUsuario} ({user.rol})",
-            font=("Arial",16)).pack(pady=10)
+            text=f"Bienvenido {user.nombreUsuario} - ({user.rol})",
+            font=("Arial", 16)
+        ).pack(pady=10)
         
         self.buildMenu(user)
 
