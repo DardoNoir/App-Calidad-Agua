@@ -10,15 +10,37 @@ class LoginWindow(ctk.CTkFrame):
         self.on_login_success = on_login_success
         self.pack(expand=True)
 
-        ctk.CTkLabel(self, text="Sistema Calidad del Agua", font=("Arial",20)).pack(pady=20)
+        ctk.CTkLabel(self, 
+                     text="Sistema Calidad del Agua", 
+                     font=("Segoe UI",22, "bold"),
+                     text_color="#007BFF").pack(pady=30)
 
-        self.usuario_entry = ctk.CTkEntry(self, placeholder_text="Usuario")
-        self.usuario_entry.pack(pady=5)
+        self.usuario_entry = ctk.CTkEntry(self,width=150, placeholder_text="Usuario")
+        self.usuario_entry.pack(pady=8)
 
-        self.password_entry = ctk.CTkEntry(self, placeholder_text="Contraseña", show="*")
-        self.password_entry.pack(pady=5)
+        self.password_entry = ctk.CTkEntry(self,width=150, placeholder_text="Contraseña", show="*")
+        self.password_entry.pack(pady=8)
 
-        ctk.CTkButton(self, text="Ingresar", command=self.login).pack(pady=15)
+        ctk.CTkButton(self, 
+                      text="Ingresar", 
+                      width=200,
+                      height=40,
+                      fg_color="#007BFF",
+                      hover_color="#00b300",
+                      command=self.login).pack(pady=(20,5))
+
+        ctk.CTkButton(self, 
+                      text="Salir", 
+                      width=200,
+                      height=40,
+                      fg_color="#FF0000",
+                      hover_color="#f8b808",
+                      command=master.destroy).pack(pady=(5,10))
+
+        ctk.CTkLabel(self, 
+                     text="© 2026 Calidad del Agua", 
+                     font=("Segoe UI", 10),
+                     text_color="#888888").pack(side="bottom", pady=10)
 
     def login(self):
         usuario = self.usuario_entry.get().strip()

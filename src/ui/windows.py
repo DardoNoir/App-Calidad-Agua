@@ -1,10 +1,13 @@
 import customtkinter as ctk
 from src.ui.login import LoginWindow
-from src.ui.dashboard import Dashboard
+from src.ui.Menus import MenuMediciones, MenuUsuarios, MenuParametros, MenuPrincipal
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        ctk.set_appearance_mode("light")
+        ctk.set_default_color_theme("blue")
 
         self.title("Calidad del Agua")
         self.geometry("600x500")
@@ -20,4 +23,28 @@ class App(ctk.CTk):
     
     def show_dashboard(self):
         self.clear()
-        Dashboard(self)
+        MenuPrincipal(
+            self, 
+            on_logout=self.show_login, 
+            on_open_mediciones=self.show_mediciones,
+            on_usuarios=self.show_usuarios,
+            on_parametros=self.show_parametros
+        )
+    
+    def show_mediciones(self):
+        self.clear()
+        MenuMediciones(self,
+                       on_back=self.show_dashboard,
+                       on_logout=self.show_login)
+        
+    def show_usuarios(self):
+        self.clear()
+        MenuUsuarios(self,
+                     on_back=self.show_dashboard)
+        
+    def show_parametros(self):
+        self.clear()
+        MenuParametros(self,
+                       on_back=self.show_dashboard)
+        
+
