@@ -2,13 +2,13 @@ from .db import connection
 from src.utils.security import hash_password
 from typing import Optional
 from datetime import datetime
-from src.analysis.evaluacion import ReferenciaParametro
+from src.analysis.evaluacion import ReferenciaParametro, EvaluarParametro
 from src.utils.security import verify_password, hash_password
+from src.utils.datetime import parse_fecha_str
 
 # ============================================================
 #                 MANEJO DE USUARIOS
 # ============================================================
-
 def crearUsuario(nombreUsuario: str, password: str, rol: str, db_path: Optional[str]=None):
     """
     Crea un nuevo usuario en la base de datos.
@@ -25,7 +25,6 @@ def crearUsuario(nombreUsuario: str, password: str, rol: str, db_path: Optional[
         )
         return cur.lastrowid  # ID del usuario recién creado
 
-
 def traerUsuarios(db_path: Optional[str]=None):
     """
     Devuelve una lista con todos los usuarios del sistema.
@@ -35,7 +34,6 @@ def traerUsuarios(db_path: Optional[str]=None):
         cur = conn.cursor()
         cur.execute("SELECT id, nombreUsuario, rol FROM usuario")
         return [dict(row) for row in cur.fetchall()]  # Convierte filas a dict
-
 
 def traerUsuarioPorNombre(nombreUsuario: str, db_path: Optional[str]=None):
     """
@@ -48,7 +46,6 @@ def traerUsuarioPorNombre(nombreUsuario: str, db_path: Optional[str]=None):
         row = cur.fetchone()
         return dict(row) if row else None
 
-
 def traerUsuarioPorId(id: int, db_path: Optional[str]=None):
     """
     Devuelve el usuario cuyo id coincide.
@@ -59,9 +56,6 @@ def traerUsuarioPorId(id: int, db_path: Optional[str]=None):
         cur.execute("SELECT nombreUsuario FROM usuario WHERE id = ?", (id,))
         row = cur.fetchone()
         return dict(row) if row else None
-
-
-from src.utils.security import verify_password
 
 def autenticarUsuario(nombreUsuario: str, password: str, db_path=None):
     usuario = traerUsuarioPorNombre(nombreUsuario, db_path)
@@ -80,12 +74,10 @@ def autenticarUsuario(nombreUsuario: str, password: str, db_path=None):
         )
 
     return usuario
-
     
 # ============================================================
 #               MANEJO DE LUGARES
 # ============================================================
-
 def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, db_path: Optional[str] = None) -> int:
     """
     Inserta un nuevo lugar en la tabla 'lugar'.
@@ -118,7 +110,6 @@ def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, db_path: Optiona
 
         return int(last_id)
 
-
 def traerLugares(db_path: Optional[str]=None):
     """
     Devuelve todos los lugares ordenados por provincia, ciudad y cuerpo de agua.
@@ -127,7 +118,6 @@ def traerLugares(db_path: Optional[str]=None):
         cur = conn.cursor()
         cur.execute("SELECT * FROM lugar ORDER BY provincia, ciudad, cuerpoAgua")
         return [dict(row) for row in cur.fetchall()]
-
 
 def traerLugarPorId(idLugar: int, db_path: Optional[str]=None):
     """
@@ -139,11 +129,9 @@ def traerLugarPorId(idLugar: int, db_path: Optional[str]=None):
         row = cur.fetchone()
         return dict(row) if row else None
 
-
 # ============================================================
 #               MANEJO DE PARÁMETROS
 # ============================================================
-
 def insertarParametro(codigo: str, nombreParametro: str, unidad: str, db_path: Optional[str] = None) -> int:
     """
     Inserta un nuevo parámetro (ej: pH, Turbiedad, DBO, etc.)
@@ -174,7 +162,6 @@ def insertarParametro(codigo: str, nombreParametro: str, unidad: str, db_path: O
 
         return int(last_id)
 
-
 def traerParametros(db_path: Optional[str]=None):
     """
     Devuelve la lista completa de parámetros registrados.
@@ -183,7 +170,6 @@ def traerParametros(db_path: Optional[str]=None):
         cur = conn.cursor()
         cur.execute("SELECT * FROM parametro")
         return [dict(row) for row in cur.fetchall()]
-
 
 def traerParametroPorId(idParametro: int, db_path: Optional[str]=None):
     """
@@ -207,8 +193,7 @@ def traerParametroPorNombre(nombreParametro: str, db_path: Optional[str]=None):
 # ============================================================
 #               MANEJO DE MEDICIONES
 # ============================================================
-
-def insertarMedicion(idLugar: int, fechaMedicion: datetime, medidaTomadaPor: int, comentarios: str, db_path: Optional[str] = None) -> int:
+def insertarMedicion(idLugar: int, fechaMedicion: str, medidaTomadaPor: int, comentarios: str, db_path: Optional[str] = None) -> int:
     """
     Inserta una nueva medición realizada en un lugar.
     - idLugar: lugar donde se tomó
@@ -230,7 +215,6 @@ def insertarMedicion(idLugar: int, fechaMedicion: datetime, medidaTomadaPor: int
 
         return int(last_id)
 
-
 def traerMedicionPorId(idMedicion: int, db_path: Optional[str]=None):
     """
     Trae una medición por su ID.
@@ -240,7 +224,6 @@ def traerMedicionPorId(idMedicion: int, db_path: Optional[str]=None):
         cur.execute("SELECT * FROM medicion WHERE id = ?", (idMedicion,))
         row = cur.fetchone()
         return dict(row) if row else None
-
 
 def traerMedicionesPorLugar(idLugar: int, db_path: Optional[str]=None):
     """
@@ -255,7 +238,6 @@ def traerMedicionesPorLugar(idLugar: int, db_path: Optional[str]=None):
         """, (idLugar,))
         return [dict(row) for row in cur.fetchall()]
 
-
 def traerMedicionesPorUsuario(idUsuario: int, db_path: Optional[str]=None):
     """
     Devuelve las mediciones cargadas por un usuario.
@@ -269,8 +251,7 @@ def traerMedicionesPorUsuario(idUsuario: int, db_path: Optional[str]=None):
         """, (idUsuario,))
         return [dict(row) for row in cur.fetchall()]
 
-
-def traerMedicionesPorFecha(fechaMedicion: datetime, db_path: Optional[str]=None):
+def traerMedicionesPorFecha(fechaMedicion: str, db_path: Optional[str]=None):
     """
     Devuelve las mediciones tomadas en una fecha exacta.
     """
@@ -283,8 +264,7 @@ def traerMedicionesPorFecha(fechaMedicion: datetime, db_path: Optional[str]=None
         """, (fechaMedicion,))
         return [dict(row) for row in cur.fetchall()]
 
-
-def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: datetime, db_path: Optional[str]=None):
+def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: str, db_path: Optional[str]=None):
     """
     Devuelve las mediciones tomadas en un lugar y fecha específicos.
     """
@@ -296,7 +276,6 @@ def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: datetime, db_path
             WHERE idLugar = ? AND fechaMedicion = ?
         """, (idLugar, fechaMedicion))
         return [dict(row) for row in cur.fetchall()]
-
 
 def traerMediciones(db_path: Optional[str]=None):
     """
@@ -315,6 +294,41 @@ def actualizarICAMedicion(idMedicion: int, ica: float, clasificacionICA: str, db
             SET ica = ?, clasificacionICA = ?
             WHERE id = ?
         """, (ica, clasificacionICA, idMedicion))
+
+def guardarMedicionCompleta(
+        provincia: str,
+        ciudad: str,
+        cuerpoAgua: str,
+        fechaMedicion,
+        usuarioId: int,
+        comentarios: str,
+        valores: dict[int, float],
+        db_path: Optional[str]=None
+):
+    """
+    valores = {idParametro: valor}
+    """
+    # Lugar
+    idLugar = insertarLugar(provincia, ciudad, cuerpoAgua)
+
+    # Medición
+    fecha = parse_fecha_str(fechaMedicion)
+    idMedicion = insertarMedicion(idLugar, fecha, usuarioId, comentarios)
+
+    # Valores evaluados
+    for idParametro, valor in valores.items():
+        referencia = traerValoresReferenciaPorParametro(idParametro, db_path)
+        estado, desviacion = EvaluarParametro(valor, referencia)
+
+        insertarValorMedido(
+            idMedicion,
+            [{"idParametro": idParametro}],
+            valor,
+            estado,
+            desviacion,
+            db_path)
+    
+    return idMedicion
 
 # ---------- Valores puntuales medidos en cada medición -------------
 def insertarValorMedido(
@@ -342,7 +356,6 @@ def insertarValorMedido(
 
         return ids_insertados
 
-
 def traerValoresMedidosDeMedicion(idMedicion: int, db_path: Optional[str]=None):
     """
     Trae todos los valores (pH, DBO, etc.) que pertenecen a una medición específica.
@@ -359,7 +372,6 @@ def traerValoresMedidosDeMedicion(idMedicion: int, db_path: Optional[str]=None):
         """, (idMedicion,))
         return [dict(row) for row in cur.fetchall()]
 
-
 def traerTodosLosValoresMedidos(db_path: Optional[str]=None):
     """
     Devuelve todos los valores medidos de todas las mediciones.
@@ -375,7 +387,6 @@ def traerTodosLosValoresMedidos(db_path: Optional[str]=None):
             JOIN parametro p ON vm.idParametro = p.id
         """)
         return [dict(row) for row in cur.fetchall()]
-
 
 # ============================================================
 #           MANEJO DE VALORES DE REFERENCIA

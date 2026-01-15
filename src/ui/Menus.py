@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import src.ui.session as session
+from src.ui.mediciones import CargarMediciones
 
 class MenuPrincipal(ctk.CTkFrame):   
     def __init__(self, master, on_logout, on_open_mediciones, on_usuarios, on_parametros):
@@ -58,7 +59,6 @@ class MenuPrincipal(ctk.CTkFrame):
         else:
             self.on_open_mediciones()
 
-
 class MenuUsuarios(ctk.CTkFrame):
     def __init__(self, master, on_back):
         super().__init__(master)
@@ -110,8 +110,7 @@ class MenuUsuarios(ctk.CTkFrame):
         text="© 2026 Calidad del Agua", 
         font=("Segoe UI", 10),            
         text_color="#888888").pack(side="bottom", pady=10)
-
-        
+      
 class MenuMediciones(ctk.CTkFrame):   
     def __init__(self, master, on_back, on_logout):
         super().__init__(master)
@@ -134,7 +133,8 @@ class MenuMediciones(ctk.CTkFrame):
             fg_color="#007BFF",
             hover_color="#0fb300",
             text="Cargar Medición", 
-            width=250).pack(pady=8)
+            width=250,
+            command=lambda: master.clear() or CargarMediciones(master, on_back)).pack(pady=8)
         ctk.CTkButton(
             self,
             height=40,
