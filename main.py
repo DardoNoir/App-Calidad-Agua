@@ -5,7 +5,7 @@ from src.data.repository import crearUsuario
 def bootstarp():
     run_migrations()
     try:
-        idUsuario = crearUsuario("aaaaa", "12345", rol="Usuario")
+        idUsuario = crearUsuario("aaaaa", "12345", rol="Administrador")
         print("Usuario creado, id: ", idUsuario)
     except Exception as e:
         print("No se creó Usuario, posible duplicado: ", e)

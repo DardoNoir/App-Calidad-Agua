@@ -3,6 +3,9 @@ import src.ui.session as session
 from src.data.repository import *
 from datetime import datetime
 from src.utils.datetime import parse_fecha_str
+from src.ui.uiUtils import *
+from tkinter import messagebox
+
 
 class CargarMediciones(ctk.CTkFrame):
     def __init__(self, master, on_back):
@@ -13,28 +16,38 @@ class CargarMediciones(ctk.CTkFrame):
         self.parametros = traerParametros()
         self.inputs = {}
 
+        self.scroll_container = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.scroll_container.pack(fill="both", expand=True, padx=5, pady=5)
+
         ctk.CTkLabel(
-            self,
+            self.scroll_container,
             text=f"Cargar Medición",
             font=("Segoe UI", 20, "bold") 
         ).pack(pady=20)
 
-        self.prov = ctk.CTkEntry(self, width=300, placeholder_text="Provincia")
+        crear_subtitulo(self.scroll_container, "Río a Medir")
+
+        self.prov = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Provincia")
         self.prov.pack()
 
-        self.ciudad = ctk.CTkEntry(self, width=300, placeholder_text="Ciudad")
+        self.ciudad = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Ciudad")
         self.ciudad.pack()
 
-        self.cuerpoAgua = ctk.CTkEntry(self, width=300, placeholder_text="Cuerpo de Agua")
+        self.cuerpoAgua = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Cuerpo de Agua")
         self.cuerpoAgua.pack()
 
-        self.fechaMedicion = ctk.CTkEntry(self, width=300, placeholder_text="Fecha de Medición (DD/MM/AAAA HH:MM)")
+        crear_separador(self.scroll_container)
+
+        crear_subtitulo(self.scroll_container,"Fecha de la Medición")
+        self.fechaMedicion = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Fecha de Medición (DD/MM/AAAA HH:MM)")
         self.fechaMedicion.pack()
+        crear_separador(self.scroll_container)
 
-
-        self.frame_parametros = ctk.CTkFrame(self)
+        crear_subtitulo(self.scroll_container, "Valores Medidos")
+        
+        self.frame_parametros = ctk.CTkFrame(self.scroll_container, fg_color="transparent")
         self.frame_parametros.pack(pady=10)
-
+        
         for i, p in enumerate(self.parametros):
 
             lbl = ctk.CTkLabel(
@@ -49,12 +62,14 @@ class CargarMediciones(ctk.CTkFrame):
 
             self.inputs[p["id"]] = e
 
+        crear_separador(self.scroll_container)
 
-        self.comments = ctk.CTkEntry(self, width=300, placeholder_text="Observaciones")
+        crear_subtitulo(self.scroll_container, "Observaciones a tener en cuenta")
+        self.comments = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Observaciones")
         self.comments.pack(pady=10)
 
         ctk.CTkButton(
-            self,
+            self.scroll_container,
             height=40,
             text_color="#0c0000",
             fg_color="#007BFF",
@@ -64,7 +79,7 @@ class CargarMediciones(ctk.CTkFrame):
             command=self.guardar).pack(pady=10)
         
         ctk.CTkButton(
-            self,
+            self.scroll_container,
             height=40,
             text_color="#ffffff",
             fg_color="#FF0000",
@@ -91,24 +106,6 @@ class CargarMediciones(ctk.CTkFrame):
             self.comments.get(),
             valores)
 
-        popup = ctk.CTkToplevel(self)
-        popup.title("Medición guardada")
-        popup.geometry("300x150")
-        popup.resizable(False, False)
-        popup.grab_set() 
-
-        ctk.CTkLabel(
-        popup,
-        text="✔ Medición guardada correctamente",
-        text_color="green",
-        font=("Segoe UI", 14, "bold")).pack(pady=25)
-
-        def cerrar():
-            popup.destroy()
-            self.on_back()
-
-        ctk.CTkButton(
-            popup,
-            text="Aceptar",                
-            fg_color="#007BFF",
-            command=cerrar).pack()
+        self.on_back()
+        messagebox.showinfo("Guardado Exitoso","✔ Medición Guardada Correctamente")
+        

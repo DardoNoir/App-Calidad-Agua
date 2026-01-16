@@ -74,7 +74,20 @@ def autenticarUsuario(nombreUsuario: str, password: str, db_path=None):
         )
 
     return usuario
-    
+
+def actualizarPassword(id_usuario: int, newPassword: str, db_path: Optional[str]=None):    
+    pw_hash = hash_password(newPassword)
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE usuario SET password = ? WHERE id = ?
+        """,
+        (pw_hash, id_usuario))
+
+def existeUsuario(nombre: str, db_path: Optional[str]=None):
+    user=traerUsuarioPorNombre(nombre, db_path)
+    return user is not None
 # ============================================================
 #               MANEJO DE LUGARES
 # ============================================================
