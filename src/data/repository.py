@@ -5,6 +5,8 @@ from datetime import datetime
 from src.analysis.evaluacion import ReferenciaParametro, EvaluarParametro
 from src.utils.security import verify_password, hash_password
 from src.utils.datetime import parse_fecha_str
+from src.analysis.calculoIca import calcular_ica, clasificar_ica, ajustar_ponderaciones
+from src.analysis.subindices import calcular_subindice_parametro
 
 # ============================================================
 #                 MANEJO DE USUARIOS
@@ -332,6 +334,10 @@ def guardarMedicionCompleta(
     fecha = parse_fecha_str(fechaMedicion)
     idMedicion = insertarMedicion(idLugar, fecha, usuarioId, comentarios)
 
+
+    subindices = []
+    parametrosMedidos = []
+
     # Valores evaluados
     for idParametro, valor in valores.items():
         referencia_dict = traerValoresReferenciaPorParametro(idParametro, db_path)
@@ -345,7 +351,41 @@ def guardarMedicionCompleta(
             estado,
             desviacion,
             db_path)
+        
+        try:
+            parametro = traerParametroPorId(idParametro, db_path)
+            if parametro is None:
+            # Inconsistencia grave: valor medido sin parámetro
+                continue
+            sub = calcular_subindice_parametro(parametro["nombreParametro"], valor)
+
+            subindices.append({
+                "idParametro": idParametro,
+                "subindice": sub
+            })
+            parametrosMedidos.append(idParametro)
+        except ValueError:
+            pass
+
+    ponderacionesDb = traerPonderacionesParametroActivas(db_path)
+    ponderacionBase = {p["idParametro"]:p["ponderacion"] for p in ponderacionesDb}
     
+    ponderaciones_ajustadas = ajustar_ponderaciones(ponderacionBase, parametrosMedidos)
+
+    listaICA = []
+    for item in subindices:
+        idParam = item["idParametro"]
+        listaICA.append({
+            "idParametro": idParam,
+            "subindice": item["subindice"],
+            "ponderacion": ponderaciones_ajustadas[idParam]
+        })
+
+    ica = calcular_ica(listaICA)
+    clas=clasificar_ica(ica)
+    
+    actualizarICAMedicion(idMedicion,ica,clas)
+
     return idMedicion
 
 # ---------- Valores puntuales medidos en cada medición -------------
