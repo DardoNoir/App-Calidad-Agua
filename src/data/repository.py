@@ -548,6 +548,15 @@ def insertarPonderacionParametro(idParametro: int, ponderacion: float, db_path: 
 
         return int(last_id)
 
+def actualizarPonderacion(idParametro: int, ponderacion: float, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE ponderacionParametro SET ponderacion = ? WHERE id = ?
+        """,
+        (ponderacion, idParametro))
+
 def traerPonderacionesParametroActivas(db_path: Optional[str]=None):    
     with connection(db_path) as conn:
         cur = conn.cursor()

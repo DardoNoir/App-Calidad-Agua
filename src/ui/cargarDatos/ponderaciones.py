@@ -5,6 +5,7 @@ from src.data.repository import (
     traerParametros,
     traerPonderacionParametro,
     traerPonderacionesParametroActivas,
+    actualizarPonderacion,
     insertarPonderacionParametro
 )
 from src.ui.uiUtils import *
@@ -45,6 +46,12 @@ class CargarPonderaciones(ctk.CTkFrame):
         crear_separador(self)
 
         self.ponderacion_frame = None
+
+        ctk.CTkLabel(self, 
+                     text="© 2026 Calidad del Agua", 
+                     font=("Segoe UI", 10),
+                     text_color="#888888").pack(side="bottom", pady=10)
+
 
     # =====================================================
     # EVENTO: selección de parámetro
@@ -139,13 +146,17 @@ class CargarPonderaciones(ctk.CTkFrame):
         if not reemplaza:
             suma += nueva
 
-        insertarPonderacionParametro(self.idParametro, nueva)
+        pond = traerPonderacionParametro(self.idParametro)
+        if pond == None:
+            insertarPonderacionParametro(self.idParametro, nueva)
+        else:
+            actualizarPonderacion(self.idParametro, nueva)
 
         suma = round(suma, 2)
 
         if suma == 1:
-            self.btn_volver.configure(state="normal")
             messagebox.showinfo("OK", "Ponderaciones completas ✔")
+            self.on_back()
         else:
             messagebox.showinfo(
                 "Atención",

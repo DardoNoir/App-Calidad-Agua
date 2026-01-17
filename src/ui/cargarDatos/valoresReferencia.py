@@ -80,6 +80,12 @@ class CargarValoresReferencia(ctk.CTkFrame):
             text="Volver",
             width=250,
             command=on_back).pack()
+        
+        ctk.CTkLabel(self, 
+                     text="© 2026 Calidad del Agua", 
+                     font=("Segoe UI", 10),
+                     text_color="#888888").pack(side="bottom", pady=10)
+
     
     def guardarValoresdeReferencia(self):
         nombre=self.rol_combo.get()
