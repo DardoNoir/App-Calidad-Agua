@@ -74,5 +74,5 @@ class CargarUsuario(ctk.CTkFrame):
         
         crearUsuario(nombre, contra, rol)
         self.on_back()
-        messagebox.showinfo("Guardado Exitoso","✔ Usuario creado Correctamente")
+        messagebox.showinfo("Guardado Exitoso","Usuario creado Correctamente ✔")
         

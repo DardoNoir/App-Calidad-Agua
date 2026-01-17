@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from src.ui.login import LoginWindow
-from src.ui.Menus import MenuMediciones, MenuUsuarios, MenuParametros, MenuPrincipal
+from src.ui.Menus import *
 
 class App(ctk.CTk):
     def __init__(self):
@@ -28,7 +28,7 @@ class App(ctk.CTk):
             on_logout=self.show_login, 
             on_open_mediciones=self.show_mediciones,
             on_usuarios=self.show_usuarios,
-            on_parametros=self.show_parametros
+            on_configuraciones=self.show_configuraciones
         )
     
     def show_mediciones(self):
@@ -42,9 +42,25 @@ class App(ctk.CTk):
         MenuUsuarios(self,
                      on_back=self.show_dashboard)
         
+    def show_configuraciones(self):
+        self.clear()
+        MenuConfiguraciones(self,
+                       on_back=self.show_dashboard,
+                       on_parametros=self.show_parametros,
+                       on_valoresRef=self.show_valoresRef)
+    
     def show_parametros(self):
         self.clear()
-        MenuParametros(self,
-                       on_back=self.show_dashboard)
+        MenuParametros(
+            self,
+            on_back=self.show_configuraciones
+        )
+    
+    def show_valoresRef(self):
+        self.clear()
+        MenuValoresRef(
+            self,
+            on_back=self.show_configuraciones
+        )
         
 

@@ -2,15 +2,17 @@ import customtkinter as ctk
 import src.ui.session as session
 from src.ui.cargarDatos.mediciones import CargarMediciones
 from src.ui.cargarDatos.usuarios import CargarUsuario
+from src.ui.cargarDatos.parametros import CargarParametro
+from src.ui.cargarDatos.valoresReferencia import CargarValoresReferencia
 
 class MenuPrincipal(ctk.CTkFrame):   
-    def __init__(self, master, on_logout, on_open_mediciones, on_usuarios, on_parametros):
+    def __init__(self, master, on_logout, on_open_mediciones, on_usuarios, on_configuraciones):
         super().__init__(master)
         self.pack(fill="both", expand=True)
         self.on_logout = on_logout
         self.on_open_mediciones = on_open_mediciones
         self.on_usuarios = on_usuarios
-        self.on_parametros = on_parametros
+        self.on_configuraciones = on_configuraciones
 
         if session.currentUser is None:
             raise RuntimeError("Dashboard abierto sin usuario autenticado")
@@ -43,8 +45,8 @@ class MenuPrincipal(ctk.CTkFrame):
                         text_color="#0c0000",
                         fg_color="#007BFF",
                         hover_color="#0fb300", 
-                        text="Configuración de Parámetros",
-                        command=self.on_parametros).pack(pady=8)
+                        text="Configuración",
+                        command=self.on_configuraciones).pack(pady=8)
             ctk.CTkButton(self, width=250, 
                         height=40,
                         fg_color="#FF0000",
@@ -178,18 +180,20 @@ class MenuMediciones(ctk.CTkFrame):
         font=("Segoe UI", 10),
         text_color="#888888").pack(side="bottom", pady=10)
 
-class MenuParametros(ctk.CTkFrame):
-    def __init__(self, master, on_back):
+class MenuConfiguraciones(ctk.CTkFrame):
+    def __init__(self, master, on_back, on_parametros, on_valoresRef):
         super().__init__(master)
         self.pack(fill="both", expand=True)
+        self.on_parametros=on_parametros
+        self.on_valoresRef = on_valoresRef
 
         if session.currentUser is None:
-            raise RuntimeError("Menu de Parámetros abierto sin usuario autenticado")
+            raise RuntimeError("Menu de Configuraciones abierto sin usuario autenticado")
         
         user = session.currentUser
 
         ctk.CTkLabel(self,
-                        text=f"Menú de Parámetros - Usuario: {user.nombreUsuario} - Rol: {user.rol}",
+                        text=f"Menú de Configuraciones - Usuario: {user.nombreUsuario} - Rol: {user.rol}",
                         font=("Segoe UI", 20, "bold")
                         ).pack(pady=40)
         
@@ -200,14 +204,17 @@ class MenuParametros(ctk.CTkFrame):
             fg_color="#007BFF",
             hover_color="#0fb300",
             text="Gestión de Parámetros", 
-            width=250).pack(pady=8)
+            width=250,
+            command=self.on_parametros).pack(pady=8)
         ctk.CTkButton(
             self,
             height=40,
             text_color="#0c0000",
             fg_color="#007BFF",
             hover_color="#0fb300",
-            text="Gestión de Valores de Referencia", width=250).pack(pady=8)
+            text="Gestión de Valores de Referencia", 
+            width=250,
+            command=self.on_valoresRef).pack(pady=8)
         ctk.CTkButton(
             self,
             height=40,
@@ -229,3 +236,97 @@ class MenuParametros(ctk.CTkFrame):
         text="© 2026 Calidad del Agua", 
         font=("Segoe UI", 10),
         text_color="#888888").pack(side="bottom", pady=10)
+
+class MenuParametros(ctk.CTkFrame):
+    def __init__(self, master, on_back):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+
+        if session.currentUser is None:
+            raise RuntimeError("Menu de Parámetros abierto sin usuario autenticado")
+        
+        user = session.currentUser
+
+        ctk.CTkLabel(self,
+                        text=f"Menú de Parámetros - Usuario: {user.nombreUsuario} - Rol: {user.rol}",
+                        font=("Segoe UI", 20, "bold")
+                        ).pack(pady=40)
+        
+        ctk.CTkButton(
+            self,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
+            text="Agregar Parámetros", 
+            width=250,
+            command=lambda: master.clear() or CargarParametro(master, on_back)).pack(pady=8)
+        ctk.CTkButton(
+            self,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
+            text="Ver Parámetros", width=250).pack(pady=8)
+        ctk.CTkButton(
+                self,
+                height=40,
+                text_color="#ffffff",
+                fg_color="#FF0000",
+                hover_color="#f8b808",
+                text="Volver al Menú de Configuraciones",
+                width=250,
+                command=on_back
+            ).pack(pady=20)
+        ctk.CTkLabel(self, 
+        text="© 2026 Calidad del Agua", 
+        font=("Segoe UI", 10),
+        text_color="#888888").pack(side="bottom", pady=10)
+
+class MenuValoresRef(ctk.CTkFrame):
+    def __init__(self, master, on_back):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+
+        if session.currentUser is None:
+            raise RuntimeError("Menu de Parámetros abierto sin usuario autenticado")
+        
+        user = session.currentUser
+
+        ctk.CTkLabel(self,
+                        text=f"Menú de Valores de Referencia - Usuario: {user.nombreUsuario} - Rol: {user.rol}",
+                        font=("Segoe UI", 20, "bold")
+                        ).pack(pady=40)
+        
+        ctk.CTkButton(
+            self,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
+            text="Cargar Valores de Referencia", 
+            width=250,
+            command=lambda: master.clear() or CargarValoresReferencia(master, on_back)).pack(pady=8)
+        ctk.CTkButton(
+            self,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
+            text="Ver Valores de Referencia", width=250).pack(pady=8)
+        ctk.CTkButton(
+                self,
+                height=40,
+                text_color="#ffffff",
+                fg_color="#FF0000",
+                hover_color="#f8b808",
+                text="Volver al Menú de Configuraciones",
+                width=250,
+                command=on_back
+            ).pack(pady=20)
+        ctk.CTkLabel(self, 
+        text="© 2026 Calidad del Agua", 
+        font=("Segoe UI", 10),
+        text_color="#888888").pack(side="bottom", pady=10)
+
+

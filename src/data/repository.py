@@ -203,6 +203,10 @@ def traerParametroPorNombre(nombreParametro: str, db_path: Optional[str]=None):
         cur.execute("SELECT * FROM parametro WHERE nombreParametro = ?", (nombreParametro,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+def existeParametro(nombreParametro: str, db_path: Optional[str]=None):
+    parametro=traerParametroPorNombre(nombreParametro, db_path)
+    return parametro is not None
 # ============================================================
 #               MANEJO DE MEDICIONES
 # ============================================================
@@ -330,7 +334,8 @@ def guardarMedicionCompleta(
 
     # Valores evaluados
     for idParametro, valor in valores.items():
-        referencia = traerValoresReferenciaPorParametro(idParametro, db_path)
+        referencia_dict = traerValoresReferenciaPorParametro(idParametro, db_path)
+        referencia = ReferenciaParametro(**referencia_dict) if referencia_dict else None
         estado, desviacion = EvaluarParametro(valor, referencia)
 
         insertarValorMedido(
@@ -438,8 +443,7 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
 
         return int(last_id)
 
-
-def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] = None) -> Optional[ReferenciaParametro]:
+def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] = None):
     """
     Devuelve los valores de referencia para un parámetro específico.
     Retorna un TypedDict con:
@@ -450,23 +454,13 @@ def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] 
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning
+            SELECT *
             FROM valorReferencia
             WHERE idParametro = ?
         """, (idParametro,))
-
         row = cur.fetchone()
-        if row is None:
-            return None
-
-        return ReferenciaParametro(
-            LimiteMax=row["limiteMaxAceptable"],
-            LimiteWarning=row["limiteMaxWarning"],
-            limiteMin=row["limiteMinAceptable"],
-            limiteMinWarning=row["limiteMinWarning"]
-        )
-
-
+        return dict(row) if row else None
+    
 def traerTodosLosValoresReferencia(db_path: Optional[str]=None):
     """
     Devuelve una lista con todas las referencias registradas.
@@ -475,7 +469,6 @@ def traerTodosLosValoresReferencia(db_path: Optional[str]=None):
         cur = conn.cursor()
         cur.execute("SELECT * FROM valorReferencia")
         return [dict(row) for row in cur.fetchall()]
-
 
 def traerValorReferenciaPorId(idValorReferencia: int, db_path: Optional[str]=None):
     """
@@ -486,6 +479,10 @@ def traerValorReferenciaPorId(idValorReferencia: int, db_path: Optional[str]=Non
         cur.execute("SELECT * FROM valorReferencia WHERE id = ?", (idValorReferencia,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+def valoresReferenciaCargados(idParametro: int, db_path: Optional[str]=None):
+    referencia=traerValoresReferenciaPorParametro(idParametro, db_path)
+    return referencia is not None
 
 # ============================================================
 #           MANEJO DE PONDERACIONES

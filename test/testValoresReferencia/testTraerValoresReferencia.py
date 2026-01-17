@@ -19,6 +19,7 @@ def listarValoresReferencia():
         print(f"Mínimo Aceptable: {ref['limiteMinAceptable']}")
         print(f"Máximo Advertencia: {ref['limiteMaxWarning']}")
         print(f"Mínimo Advertencia: {ref['limiteMinWarning']}")
+        print(f"Normativa: {ref['normativa']}")
 
     input("Enter para terminar: ")
 
