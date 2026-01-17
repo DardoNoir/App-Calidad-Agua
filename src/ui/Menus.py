@@ -4,6 +4,7 @@ from src.ui.cargarDatos.mediciones import CargarMediciones
 from src.ui.cargarDatos.usuarios import CargarUsuario
 from src.ui.cargarDatos.parametros import CargarParametro
 from src.ui.cargarDatos.valoresReferencia import CargarValoresReferencia
+from src.ui.cargarDatos.ponderaciones import CargarPonderaciones
 
 class MenuPrincipal(ctk.CTkFrame):   
     def __init__(self, master, on_logout, on_open_mediciones, on_usuarios, on_configuraciones):
@@ -181,11 +182,12 @@ class MenuMediciones(ctk.CTkFrame):
         text_color="#888888").pack(side="bottom", pady=10)
 
 class MenuConfiguraciones(ctk.CTkFrame):
-    def __init__(self, master, on_back, on_parametros, on_valoresRef):
+    def __init__(self, master, on_back, on_parametros, on_valoresRef, on_ponderaciones):
         super().__init__(master)
         self.pack(fill="both", expand=True)
         self.on_parametros=on_parametros
         self.on_valoresRef = on_valoresRef
+        self.on_ponderaciones = on_ponderaciones
 
         if session.currentUser is None:
             raise RuntimeError("Menu de Configuraciones abierto sin usuario autenticado")
@@ -221,7 +223,9 @@ class MenuConfiguraciones(ctk.CTkFrame):
             text_color="#0c0000",
             fg_color="#007BFF",
             hover_color="#0fb300",
-            text="Gestión de Ponderaciones", width=250).pack(pady=8)
+            text="Gestión de Ponderaciones", 
+            width=250,
+            command=self.on_ponderaciones).pack(pady=8)
         ctk.CTkButton(
                 self,
                 height=40,
@@ -329,4 +333,48 @@ class MenuValoresRef(ctk.CTkFrame):
         font=("Segoe UI", 10),
         text_color="#888888").pack(side="bottom", pady=10)
 
+class MenuPonderaciones(ctk.CTkFrame):
+    def __init__(self, master, on_back):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
 
+        if session.currentUser is None:
+            raise RuntimeError("Menu de Parámetros abierto sin usuario autenticado")
+        
+        user = session.currentUser
+
+        ctk.CTkLabel(self,
+                        text=f"Menú de Ponderaciones de Parámetros - Usuario: {user.nombreUsuario} - Rol: {user.rol}",
+                        font=("Segoe UI", 20, "bold")
+                        ).pack(pady=40)
+        
+        ctk.CTkButton(
+            self,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
+            text="Cargar Ponderaciones", 
+            width=250,
+            command=lambda: master.clear() or CargarPonderaciones(master, on_back)).pack(pady=8)
+        ctk.CTkButton(
+            self,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
+            text="Ver Ponderaciones Activas", width=250).pack(pady=8)
+        ctk.CTkButton(
+                self,
+                height=40,
+                text_color="#ffffff",
+                fg_color="#FF0000",
+                hover_color="#f8b808",
+                text="Volver al Menú de Configuraciones",
+                width=250,
+                command=on_back
+            ).pack(pady=20)
+        ctk.CTkLabel(self, 
+        text="© 2026 Calidad del Agua", 
+        font=("Segoe UI", 10),
+        text_color="#888888").pack(side="bottom", pady=10)

@@ -47,7 +47,8 @@ class App(ctk.CTk):
         MenuConfiguraciones(self,
                        on_back=self.show_dashboard,
                        on_parametros=self.show_parametros,
-                       on_valoresRef=self.show_valoresRef)
+                       on_valoresRef=self.show_valoresRef,
+                       on_ponderaciones=self.show_ponderaciones)
     
     def show_parametros(self):
         self.clear()
@@ -59,6 +60,13 @@ class App(ctk.CTk):
     def show_valoresRef(self):
         self.clear()
         MenuValoresRef(
+            self,
+            on_back=self.show_configuraciones
+        )
+    
+    def show_ponderaciones(self):
+        self.clear()
+        MenuPonderaciones(
             self,
             on_back=self.show_configuraciones
         )

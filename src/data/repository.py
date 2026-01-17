@@ -512,8 +512,15 @@ def traerPonderacionesParametroActivas(db_path: Optional[str]=None):
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
-            SELECT idParametro, ponderacion
+            SELECT *
             FROM ponderacionParametro
             WHERE activo = 1
         """)
         return [dict(row) for row in cur.fetchall()]
+    
+def traerPonderacionParametro(idParametro: int, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM ponderacionParametro WHERE idParametro = ?", (idParametro,))
+        row = cur.fetchone()
+        return dict(row) if row else None
