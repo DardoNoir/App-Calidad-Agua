@@ -67,4 +67,13 @@ class DetalleMedicion(ctk.CTkFrame):
             ctk.CTkLabel(frame_tabla, text=v["estado"]).grid(row=i, column=3, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["desviacion"]).grid(row=i, column=4, padx=10)
 
-        ctk.CTkButton(scroll, text="Volver", fg_color="#FF0000", command=self.on_back).pack(pady=20)
+        ctk.CTkButton(scroll, text="Volver", height=40,
+            text_color="#ffffff",
+            fg_color="#FF0000",
+            hover_color="#f8b808",
+            width=150, command=self.on_back).pack(pady=20)
+        
+        ctk.CTkLabel(self, 
+            text="© 2026 Calidad del Agua", 
+            font=("Segoe UI", 10),
+            text_color="#888888").pack(side="bottom", pady=10)

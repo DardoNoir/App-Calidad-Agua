@@ -25,6 +25,7 @@ class LoginWindow(ctk.CTkFrame):
                       text="Ingresar", 
                       width=200,
                       height=40,
+                      text_color="#ffffff",
                       fg_color="#007BFF",
                       hover_color="#00b300",
                       command=self.login).pack(pady=(20,5))
@@ -33,6 +34,7 @@ class LoginWindow(ctk.CTkFrame):
                       text="Salir", 
                       width=200,
                       height=40,
+                      text_color="#ffffff",
                       fg_color="#FF0000",
                       hover_color="#f8b808",
                       command=master.destroy).pack(pady=(5,10))

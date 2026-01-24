@@ -10,7 +10,7 @@ class App(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         self.title("Calidad del Agua")
-        self.geometry("600x500")
+        self.geometry("800x500")
         self.show_login()
 
     def clear(self):

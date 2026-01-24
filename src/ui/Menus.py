@@ -52,6 +52,7 @@ class MenuPrincipal(ctk.CTkFrame):
                         command=self.on_configuraciones).pack(pady=8)
             ctk.CTkButton(self, width=250, 
                         height=40,
+                        text_color="#ffffff",
                         fg_color="#FF0000",
                         hover_color="#f8b808",
                         text="Cerrar Sesión",
@@ -175,6 +176,7 @@ class MenuMediciones(ctk.CTkFrame):
                 self,
                 text="Cerrar Sesión",
                 width=250,
+                text_color="#0c0000",
                 fg_color="#FF0000",
                 hover_color="#f8b808",
                 command=on_logout

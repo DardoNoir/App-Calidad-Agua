@@ -449,6 +449,8 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, db_pa
         query += " ORDER BY m.fechaMedicion DESC"
 
         cur.execute(query, params)
+
+
         return [dict(row) for row in cur.fetchall()]
 
 # ============================================================
