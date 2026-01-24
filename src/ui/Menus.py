@@ -5,6 +5,8 @@ from src.ui.cargarDatos.usuarios import CargarUsuario
 from src.ui.cargarDatos.parametros import CargarParametro
 from src.ui.cargarDatos.valoresReferencia import CargarValoresReferencia
 from src.ui.cargarDatos.ponderaciones import CargarPonderaciones
+from src.ui.mediciones.historialMediciones import HistorialMediciones
+
 
 class MenuPrincipal(ctk.CTkFrame):   
     def __init__(self, master, on_logout, on_open_mediciones, on_usuarios, on_configuraciones):
@@ -146,7 +148,9 @@ class MenuMediciones(ctk.CTkFrame):
             text_color="#0c0000",
             fg_color="#007BFF",
             hover_color="#0fb300",
-            text="Historial de Mediciones", width=250).pack(pady=8)
+            text="Historial de Mediciones", 
+            width=250,
+            command=lambda: master.clear() or HistorialMediciones(master, on_back)).pack(pady=8)
         ctk.CTkButton(
             self,
             height=40,

@@ -388,7 +388,72 @@ def guardarMedicionCompleta(
 
     return idMedicion
 
-# ---------- Valores puntuales medidos en cada medición -------------
+def traerMedicionesConDetalleLugar(db_path: Optional[str]=None):
+    """
+    Devuelve las mediciones con información del lugar y usuario.
+    """
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                m.id,
+                m.fechaMedicion,
+                u.nombreUsuario AS tomadaPor,
+                m.ica,
+                m.clasificacionICA,
+                m.comentarios,
+                m.cargadaSistema,
+                l.provincia,
+                l.ciudad,
+                l.cuerpoAgua,
+                l.id as idLugar
+            FROM medicion m
+            JOIN lugar l ON m.idLugar = l.id
+            JOIN usuario u ON m.medidaTomadaPor = u.id
+            ORDER BY m.fechaMedicion DESC
+        """)
+        return [dict(row) for row in cur.fetchall()]
+
+def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        query = """
+            SELECT 
+                m.id,
+                m.fechaMedicion,
+                u.nombreUsuario AS tomadaPor,
+                m.ica,
+                m.clasificacionICA,
+                m.comentarios,
+                m.cargadaSistema,
+                l.provincia,
+                l.ciudad,
+                l.cuerpoAgua
+            FROM medicion m
+            JOIN lugar l ON m.idLugar = l.id
+            JOIN usuario u ON m.medidaTomadaPor = u.id
+            WHERE 1=1
+        """
+        params = []
+
+        if provincia:
+            query += " AND l.provincia = ?"
+            params.append(provincia)
+        if ciudad:
+            query += " AND l.ciudad = ?"
+            params.append(ciudad)
+        if cuerpoAgua:
+            query += " AND l.cuerpoAgua = ?"
+            params.append(cuerpoAgua)
+
+        query += " ORDER BY m.fechaMedicion DESC"
+
+        cur.execute(query, params)
+        return [dict(row) for row in cur.fetchall()]
+
+# ============================================================
+#           MANEJO DE VALORES MEDIDOS
+# ============================================================
 def insertarValorMedido(
     idMedicion: int,
     parametros: list[dict[str, int]],
