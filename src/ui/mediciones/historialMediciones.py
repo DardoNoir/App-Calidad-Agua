@@ -132,10 +132,10 @@ class HistorialMediciones(ctk.CTkFrame):
                 m["fechaMedicion"],
                 m["tomadaPor"],
                 round(m["ica"], 2) if m["ica"] else "",
-                clasif = m["clasificacionICA"] or "",
+                m["clasificacionICA"] or "",
                 m["comentarios"] or "",
                 m["cargadaSistema"]
-            ), tags=tag)
+            ))
 
 
 
