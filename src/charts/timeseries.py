@@ -40,42 +40,23 @@ def graficarParametro(
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
 
     if referencia is not None:
-        limite_max = referencia.get("LimiteMax")
-        if isinstance(limite_max, float):
-            ax.axhline(
-                y=limite_max,
-                linestyle="--",
-                color="green",
-                label="Máximo Aceptable"
-            )
+        max_ok = referencia.get("limiteMaxAceptable")
+        min_ok = referencia.get("limiteMinAceptable")
+        min_warn = referencia.get("limiteMinWarning")
+        max_warn = referencia.get("limiteMaxWarning")
 
-        # ⚠️ BUG CORREGIDO (ver punto 2)
-        limite_min = referencia.get("limiteMin")
-        if isinstance(limite_min, float):
-            ax.axhline(
-                y=limite_min,
-                linestyle="--",
-                color="green",
-                label="Mínimo Aceptable"
-            )
+    if isinstance(max_ok, float):
+        ax.axhline(y=max_ok, linestyle="--", color="green", label="Máximo aceptable")
 
-        min_warning = referencia.get("limiteMinWarning")
-        if isinstance(min_warning, float):
-            ax.axhline(
-                y=min_warning,
-                linestyle=":",
-                color="red",
-                label="Mínimo Advertencia"
-            )
+    if isinstance(min_ok, float):
+        ax.axhline(y=min_ok, linestyle="--", color="green", label="Mínimo aceptable")
 
-        max_warning = referencia.get("LimiteWarning")
-        if isinstance(max_warning, float):
-            ax.axhline(
-                y=max_warning,
-                linestyle=":",
-                color="red",
-                label="Máximo Advertencia"
-            )
+    if isinstance(min_warn, float):
+        ax.axhline(y=min_warn, linestyle=":", color="red", label="Mínimo advertencia")
+
+    if isinstance(max_warn, float):
+        ax.axhline(y=max_warn, linestyle=":", color="red", label="Máximo advertencia")
+
 
     ax.set_xlabel("Fecha de Medición")
     ax.set_ylabel(f"{nombreParametro} ({unidad})")
@@ -93,15 +74,7 @@ def grafico_parametros_combinados(
     unidad: str,
     titulo: str
 ):
-    """
-    series = [
-      {
-        "nombre": "Nitratos",
-        "fechas": [...],
-        "valores": [...]
-      }
-    ]
-    """
+    
     fig = plt.figure()
 
     for s in series:

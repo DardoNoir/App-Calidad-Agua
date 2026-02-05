@@ -38,14 +38,14 @@ def traerSeriesParametroPorLugar(
     query += " ORDER BY m.fechaMedicion ASC"
 
     with connection(db_path) as conn:
-        conn.row_factory = Row  # 🔑 CLAVE
+        conn.row_factory = Row  
         cursor = conn.cursor()
         cursor.execute(query, params)
 
         filas = []
         for row in cursor.fetchall():
             filas.append({ # type: ignore
-                "fecha": datetime.fromisoformat(row["fecha"]),
+                "fecha": datetime.strptime(row["fecha"], "%d/%m/%Y %H:%M"),
                 "valor": row["valor"]
             })
 

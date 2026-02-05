@@ -6,7 +6,7 @@ from src.data.repository import(
 )
 import matplotlib.pyplot as plot 
 
-serie = traerSeriesParametroPorLugar(idLugar=1, idParametro=1)
+serie = traerSeriesParametroPorLugar(idLugar=2, idParametro=1)
 
 param = traerParametroPorId(1)
 if param is None:

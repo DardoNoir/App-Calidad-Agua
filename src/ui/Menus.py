@@ -6,6 +6,7 @@ from src.ui.cargarDatos.parametros import CargarParametro
 from src.ui.cargarDatos.valoresReferencia import CargarValoresReferencia
 from src.ui.cargarDatos.ponderaciones import CargarPonderaciones
 from src.ui.mediciones.historialMediciones import HistorialMediciones
+from src.ui.mediciones.descargarMediciones import DescargarMediciones
 
 
 class MenuPrincipal(ctk.CTkFrame):   
@@ -158,7 +159,9 @@ class MenuMediciones(ctk.CTkFrame):
             text_color="#0c0000",
             fg_color="#007BFF",
             hover_color="#0fb300",
-            text="Exportar Datos", width=250).pack(pady=8)
+            text="Exportar Datos", 
+            width=250,
+            command=lambda: master.clear() or DescargarMediciones(master, on_back)).pack(pady=8)
 
         if user.rol == "Administrador":
             ctk.CTkButton(

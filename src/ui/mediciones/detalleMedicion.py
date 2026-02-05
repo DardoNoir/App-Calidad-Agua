@@ -2,6 +2,11 @@ import customtkinter as ctk
 from src.data.repository import *
 from src.ui.uiUtils import *
 from tkinter import messagebox
+import matplotlib.pyplot as plt
+from src.charts.datasource import traerSeriesParametroPorLugar
+from src.charts.timeseries import graficarParametro
+from typing import cast
+from src.analysis.evaluacion import ReferenciaParametro
 
 
 class DetalleMedicion(ctk.CTkFrame):
@@ -10,70 +15,182 @@ class DetalleMedicion(ctk.CTkFrame):
         self.pack(fill="both", expand=True)
         self.on_back = on_back
 
-        medicion = traerMedicionPorId(id_medicion)
-        if medicion == None:
-            messagebox.showerror("Error", "Medicion Inexistente")
+        # ======================
+        # Carga de datos
+        # ======================
+        self.medicion = traerMedicionPorId(id_medicion)
+        if self.medicion is None:
+            messagebox.showerror("Error", "Medición inexistente")
+            self.on_back()
             return
 
-
-        lugar = traerLugarPorId(medicion["idLugar"])
-        if lugar == None:
-            messagebox.showerror("Error","Lugar Inexistente")
+        self.lugar = traerLugarPorId(self.medicion["idLugar"])
+        if self.lugar is None:
+            messagebox.showerror("Error", "Lugar inexistente")
+            self.on_back()
             return
 
-
-        valores = traerValoresMedidosDeMedicion(id_medicion)
-        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
-        if usuario == None:
-            messagebox.showerror("Error", "Usuario Inexistente")
+        self.usuario = traerUsuarioPorId(self.medicion["medidaTomadaPor"])
+        if self.usuario is None:
+            messagebox.showerror("Error", "Usuario inexistente")
+            self.on_back()
             return
 
+        self.valores = traerValoresMedidosDeMedicion(id_medicion)
+
+        # ======================
+        # Contenedor scroll
+        # ======================
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
         scroll.pack(fill="both", expand=True)
 
-        ctk.CTkLabel(scroll, text="Detalle de Medición", font=("Segoe UI", 20, "bold")).pack(pady=10)
+        # ======================
+        # Título
+        # ======================
+        ctk.CTkLabel(
+            scroll,
+            text="Detalle de Medición",
+            font=("Segoe UI", 20, "bold")
+        ).pack(pady=10)
 
+        # ======================
+        # Lugar
+        # ======================
         crear_subtitulo(scroll, "Lugar")
 
-        ctk.CTkLabel(scroll, text=f"Provincia: {lugar['provincia']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"Ciudad: {lugar['ciudad']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"Cuerpo de Agua: {lugar['cuerpoAgua']}").pack(anchor="w", padx=60)
+        ctk.CTkLabel(scroll, text=f"Provincia: {self.lugar['provincia']}").pack(anchor="w", padx=60)
+        ctk.CTkLabel(scroll, text=f"Ciudad: {self.lugar['ciudad']}").pack(anchor="w", padx=60)
+        ctk.CTkLabel(scroll, text=f"Cuerpo de Agua: {self.lugar['cuerpoAgua']}").pack(anchor="w", padx=60)
 
         crear_separador(scroll)
 
+        # ======================
+        # Datos Generales
+        # ======================
         crear_subtitulo(scroll, "Datos Generales")
 
-        ctk.CTkLabel(scroll, text=f"Fecha Medición: {medicion['fechaMedicion']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"Tomada por: {usuario['nombreUsuario']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"ICA: {medicion['ica']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"Clasificación ICA: {medicion['clasificacionICA']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"Observaciones: {medicion['comentarios']}").pack(anchor="w", padx=60)
+        ctk.CTkLabel(
+            scroll,
+            text=f"Fecha Medición: {self.medicion['fechaMedicion']}"
+        ).pack(anchor="w", padx=60)
+
+        ctk.CTkLabel(
+            scroll,
+            text=f"Tomada por: {self.usuario['nombreUsuario']}"
+        ).pack(anchor="w", padx=60)
+
+        ctk.CTkLabel(
+            scroll,
+            text=f"ICA: {round(self.medicion['ica'], 2) if self.medicion['ica'] else '-'}"
+        ).pack(anchor="w", padx=60)
+
+        ctk.CTkLabel(
+            scroll,
+            text=f"Clasificación ICA: {self.medicion['clasificacionICA'] or '-'}"
+        ).pack(anchor="w", padx=60)
+
+        ctk.CTkLabel(
+            scroll,
+            text=f"Observaciones: {self.medicion['comentarios'] or '-'}"
+        ).pack(anchor="w", padx=60)
 
         crear_separador(scroll)
 
+        # ======================
+        # Parámetros medidos
+        # ======================
         crear_subtitulo(scroll, "Parámetros Medidos")
 
         frame_tabla = ctk.CTkFrame(scroll)
         frame_tabla.pack(padx=40, pady=10)
 
-        headers = ["Parámetro", "Unidad", "Valor", "Estado", "Desviación"]
+        headers = ["Parámetro", "Unidad", "Valor", "Estado", "Desviación", "Gráfico"]
         for col, h in enumerate(headers):
-            ctk.CTkLabel(frame_tabla, text=h, font=("Segoe UI", 12, "bold")).grid(row=0, column=col, padx=10, pady=5)
+            ctk.CTkLabel(
+                frame_tabla,
+                text=h,
+                font=("Segoe UI", 12, "bold")
+            ).grid(row=0, column=col, padx=10, pady=5)
 
-        for i, v in enumerate(valores, start=1):
+        for i, v in enumerate(self.valores, start=1):
             ctk.CTkLabel(frame_tabla, text=v["nombreParametro"]).grid(row=i, column=0, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["unidad"]).grid(row=i, column=1, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["valor"]).grid(row=i, column=2, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["estado"]).grid(row=i, column=3, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["desviacion"]).grid(row=i, column=4, padx=10)
 
-        ctk.CTkButton(scroll, text="Volver", height=40,
+            ctk.CTkButton(
+                frame_tabla,
+                text="📈",
+                width=40,
+                command=lambda p=v["idParametro"]: self.mostrar_grafico(p)
+            ).grid(row=i, column=5, padx=5)
+
+        # ======================
+        # Botón volver
+        # ======================
+        ctk.CTkButton(
+            scroll,
+            text="Volver",
+            height=40,
             text_color="#ffffff",
             fg_color="#FF0000",
             hover_color="#f8b808",
-            width=150, command=self.on_back).pack(pady=20)
-        
-        ctk.CTkLabel(self, 
-            text="© 2026 Calidad del Agua", 
+            width=150,
+            command=self.on_back
+        ).pack(pady=20)
+
+        # ======================
+        # Footer
+        # ======================
+        ctk.CTkLabel(
+            self,
+            text="© 2026 Calidad del Agua",
             font=("Segoe UI", 10),
-            text_color="#888888").pack(side="bottom", pady=10)
+            text_color="#888888"
+        ).pack(side="bottom", pady=10)
+
+    # =====================================================
+    # Gráfico de parámetro
+    # =====================================================
+    def mostrar_grafico(self, id_parametro: int):
+        try:
+            if self.medicion is None:
+                messagebox.showerror("Error", "Medición no disponible")
+                return
+
+            serie = traerSeriesParametroPorLugar(
+                idLugar=self.medicion["idLugar"],
+                idParametro=id_parametro
+            )
+
+            if not serie:
+                messagebox.showinfo(
+                    "Sin datos",
+                    "No hay datos suficientes para graficar este parámetro."
+                )
+                return
+
+            parametro = traerParametroPorId(id_parametro)
+            if parametro is None:
+                messagebox.showerror("Error", "Parámetro no encontrado")
+                return
+            referencia = traerValoresReferenciaPorParametro(id_parametro)
+            ref = cast(ReferenciaParametro | None, referencia)
+
+            graficarParametro(
+                fechas=[s["fecha"] for s in serie],
+                valores=[s["valor"] for s in serie],
+                nombreParametro=parametro["nombreParametro"],
+                unidad=parametro["unidad"],
+                referencia=ref,
+                titulo=f"– {self.lugar['cuerpoAgua'] if self.lugar is not None else '-'}"
+            )
+
+            plt.show()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"No se pudo generar el gráfico:\n{e}"
+            )

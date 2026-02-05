@@ -1,18 +1,11 @@
 from typing import TypedDict, Optional
 
 class ReferenciaParametro(TypedDict, total=False):
-    """
-    Representa los límites permitidos para un parámetro.
-    Puede contener:
-        - LimiteMax: valor máximo permitido antes de ser "Crítico"
-        - LimiteWarning: valor máximo antes de entrar en advertencia ("Warning")
-        - LimiteMin: valor mínimo permitido antes de ser "Crítico"
-        - LimiteMinWarning: valor mínimo antes de entrar en advertencia ("Warning")
-    """
-    LimiteMax: Optional[float]
-    LimiteWarning: Optional[float]
-    limiteMin: Optional[float]
+    limiteMaxAceptable: Optional[float]
+    limiteMaxWarning: Optional[float]
+    limiteMinAceptable: Optional[float]
     limiteMinWarning: Optional[float]
+
     
 
 def EvaluarParametro(valor: float, referencia: Optional[ReferenciaParametro] | None):
