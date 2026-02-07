@@ -7,6 +7,7 @@ from src.ui.cargarDatos.valoresReferencia import CargarValoresReferencia
 from src.ui.cargarDatos.ponderaciones import CargarPonderaciones
 from src.ui.mediciones.historialMediciones import HistorialMediciones
 from src.ui.mediciones.descargarMediciones import DescargarMediciones
+from src.ui.parametros.listaParamteros import ListaParametros
 
 
 class MenuPrincipal(ctk.CTkFrame):   
@@ -280,7 +281,9 @@ class MenuParametros(ctk.CTkFrame):
             text_color="#0c0000",
             fg_color="#007BFF",
             hover_color="#0fb300",
-            text="Ver Parámetros", width=250).pack(pady=8)
+            text="Ver Parámetros", 
+            width=250,
+            command=lambda: master.clear() or ListaParametros(master, on_back)).pack(pady=8)
         ctk.CTkButton(
                 self,
                 height=40,
