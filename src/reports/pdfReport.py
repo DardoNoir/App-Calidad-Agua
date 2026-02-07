@@ -1,9 +1,11 @@
-from typing import Optional, List
+from typing import Optional, List, cast
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Flowable, Image, PageBreak
 import matplotlib.pyplot as plt
+from src.analysis.evaluacion import ReferenciaParametro
+
 
 
 from src.data.repository import(
@@ -97,14 +99,16 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
         fechas = [s["fecha"] for s in series if s["valor"] is not None]
         valores_historicos = [float(s["valor"]) for s in series if s["valor"] is not None]
 
-        referencia = traerValoresReferenciaPorParametro(idParametro, db_path)
+        referencia = traerValoresReferenciaPorParametro(idParametro)
+        ref = cast(ReferenciaParametro | None, referencia)
+    
         
         fig = graficarParametro(
                 fechas=fechas,
                 valores=valores_historicos,
                 nombreParametro=nombreParametro,
                 unidad=unidad,
-                referencia=referencia,
+                referencia=ref,
                 titulo=f"en {lugar['cuerpoAgua']}"
             )
 

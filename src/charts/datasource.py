@@ -52,7 +52,12 @@ def traerSeriesParametroPorLugar(
         return filas # type: ignore
 
 
-def traerSerieCompletaParametroLugar(idLugar: int, idParametro: int, db_path: Optional[str] = None) -> List[dict[str, Any]]:
+def traerSerieCompletaParametroLugar(
+    idLugar: int,
+    idParametro: int,
+    db_path: Optional[str] = None
+) -> List[dict[str, Any]]:
+
     query = """
     SELECT
         m.fechaMedicion AS fecha,
@@ -64,12 +69,16 @@ def traerSerieCompletaParametroLugar(idLugar: int, idParametro: int, db_path: Op
     WHERE m.idLugar = ?
     ORDER BY m.fechaMedicion ASC
     """
+
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute(query, (idParametro, idLugar))
+
         return [
-            {"fecha": datetime.fromisoformat(r["fecha"]),
-             "valor": r["valor"]}
+            {
+                "fecha": datetime.strptime(r["fecha"], "%d/%m/%Y %H:%M"),
+                "valor": r["valor"]
+            }
             for r in cur.fetchall()
         ]
 

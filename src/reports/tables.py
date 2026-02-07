@@ -93,11 +93,26 @@ def crearTablaICA(ica: float | None, clasificacionIca: str | None) -> Flowable:
 
 
 
+from datetime import datetime
+
 def formatoFecha(fecha: Any) -> str:
+    if isinstance(fecha, datetime):
+        return fecha.strftime("%d/%m/%Y %H:%M")
+
     if isinstance(fecha, str):
-        fecha = fecha.split(".")[0]
-        fecha = datetime.fromisoformat(fecha)
-    return fecha.strftime("%d/%m/%Y %H:%M")
+        fecha = fecha.strip()
+
+        # Intento ISO primero
+        try:
+            fecha_dt = datetime.fromisoformat(fecha.split(".")[0])
+        except ValueError:
+            # Intento formato argentino
+            fecha_dt = datetime.strptime(fecha, "%d/%m/%Y %H:%M")
+
+        return fecha_dt.strftime("%d/%m/%Y %H:%M")
+
+    raise ValueError(f"Formato de fecha no soportado: {fecha}")
+
 
 
 def crearTablaDatosGenerales(

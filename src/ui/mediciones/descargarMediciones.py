@@ -2,6 +2,10 @@ import customtkinter as ctk
 from src.data.repository import *
 from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
+from pathlib import Path
+from src.reports.pdfReport import generarReporte
+
+
 
 class DescargarMediciones(ctk.CTkFrame):
     def __init__(self, master, on_back):
@@ -85,7 +89,8 @@ class DescargarMediciones(ctk.CTkFrame):
             fg_color="#007BFF",
             hover_color="#0fb300",
             text="Descargar Medición (PDF)",
-            width=150,)
+            width=150,
+            command=self.descargar_pdf)
         btn_descargarPdf.pack(side="left", padx=20)
 
         btn_descargarExcel = ctk.CTkButton(frame_botones,
@@ -142,3 +147,19 @@ class DescargarMediciones(ctk.CTkFrame):
                 m["comentarios"] or "",
                 m["cargadaSistema"]
             ))
+    
+    def descargar_pdf(self):
+        selected = self.tree.focus()
+        if not selected:
+            messagebox.showerror("Error", "No se ha seleccionado ninguna medición")
+            return
+        
+        ruta = Path("reporte_prueba.pdf")
+        id_medicion = int(self.tree.item(selected)["values"][0])
+
+        generarReporte(
+            idMedicion=id_medicion,
+            rutaGuardar=ruta
+        )
+
+        messagebox.showinfo("Éxito", f"Reporte generado en: {ruta}")
