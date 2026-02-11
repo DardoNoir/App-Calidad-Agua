@@ -209,6 +209,15 @@ def traerParametroPorNombre(nombreParametro: str, db_path: Optional[str]=None):
 def existeParametro(nombreParametro: str, db_path: Optional[str]=None):
     parametro=traerParametroPorNombre(nombreParametro, db_path)
     return parametro is not None
+
+def actualizarParametro(idParametro: int, codigo: str, nombreParametro: str, unidad: str, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE parametro SET codigo = ?, nombreParametro = ?, unidad = ?
+            WHERE id = ?
+        """, (codigo, nombreParametro, unidad, idParametro))
+
 # ============================================================
 #               MANEJO DE MEDICIONES
 # ============================================================
@@ -590,6 +599,16 @@ def traerValorReferenciaPorId(idValorReferencia: int, db_path: Optional[str]=Non
 def valoresReferenciaCargados(idParametro: int, db_path: Optional[str]=None):
     referencia=traerValoresReferenciaPorParametro(idParametro, db_path)
     return referencia is not None
+
+def actualizarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limiteMaxWarning: float,
+                              limiteMinAceptable: float, limiteMinWarning:float, normativa: str, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE valorReferencia SET limiteMaxAceptable = ?, limiteMaxWarning = ?,
+                     limiteMinAceptable = ?, limiteMinWarning = ?, normativa = ?
+                     WHERE idParametro = ?
+        """, (limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning, normativa, idParametro))
 
 # ============================================================
 #           MANEJO DE PONDERACIONES
