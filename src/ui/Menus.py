@@ -64,59 +64,6 @@ class MenuPrincipal(ctk.CTkFrame):
 
         else:
             self.on_open_mediciones()
-
-class MenuUsuarios(ctk.CTkFrame):
-    def __init__(self, master, on_back):
-        super().__init__(master)
-        self.pack(fill="both", expand=True)
-
-        if session.currentUser is None:
-            raise RuntimeError("Menu de Usuarios abierto sin usuario autenticado")
-        
-        user = session.currentUser
-
-        ctk.CTkLabel(self,
-                        text=f"Menú de Usuarios - Usuario: {user.nombreUsuario} - Rol: {user.rol}",
-                        font=("Segoe UI", 20, "bold")
-                        ).pack(pady=40)
-        
-        ctk.CTkButton(
-            self,
-            height=40,
-            text_color="#0c0000",
-            fg_color="#007BFF",
-            hover_color="#0fb300",
-            text="Agregar Usuario", 
-            width=250,
-            command=lambda: master.clear() or CargarUsuario(master, on_back)).pack(pady=8)
-        ctk.CTkButton(
-            self,
-            height=40,
-            text_color="#0c0000",
-            fg_color="#007BFF",
-            hover_color="#0fb300",
-            text="Gestión del Usuario", width=250).pack(pady=8)
-        ctk.CTkButton(
-            self,
-            height=40,
-            text_color="#0c0000",
-            fg_color="#007BFF",
-            hover_color="#0fb300",
-            text="Movimientos del Usuario", width=250).pack(pady=8)
-        ctk.CTkButton(
-                self,
-                height=40,
-                text_color="#ffffff",
-                fg_color="#FF0000",
-                hover_color="#f8b808",
-                text="Volver al Menú Principal",
-                width=250,
-                command=on_back
-            ).pack(pady=20)
-        ctk.CTkLabel(self, 
-        text="© 2026 Calidad del Agua", 
-        font=("Segoe UI", 10),            
-        text_color="#888888").pack(side="bottom", pady=10)
       
 class MenuMediciones(ctk.CTkFrame):   
     def __init__(self, master, on_back, on_logout):

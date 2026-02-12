@@ -2,6 +2,7 @@ import customtkinter as ctk
 from src.ui.login import LoginWindow
 from src.ui.Menus import *
 from src.ui.parametros.listaParamteros import ListaParametros
+from src.ui.usuarios.listaUsuarios import ListaUsuarios
 
 class App(ctk.CTk):
     def __init__(self):
@@ -40,7 +41,7 @@ class App(ctk.CTk):
         
     def show_usuarios(self):
         self.clear()
-        MenuUsuarios(self,
+        ListaUsuarios(self,
                      on_back=self.show_dashboard)
         
     def show_configuraciones(self):
