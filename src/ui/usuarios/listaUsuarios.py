@@ -2,7 +2,7 @@ import customtkinter as ctk
 from src.data.repository import *
 from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
-from src.ui.usuarios.usuarios import CargarUsuario
+from src.ui.usuarios.fromUsuarios import FormUsuario
 
 class ListaUsuarios(ctk.CTkFrame):
     def __init__(self, master, on_back):
@@ -49,13 +49,28 @@ class ListaUsuarios(ctk.CTkFrame):
         self.tree.pack(fill="both", expand=True, padx=5, pady=5)
 
         for usuario in self.usuarios:
+            ultima = usuario.get("ultimoInicio")
+
+            if ultima:
+                try:
+                    if isinstance(ultima, str):
+                        ultima_dt = datetime.fromisoformat(ultima)
+                    else:
+                        ultima_dt = ultima
+
+                    ultima_formateada = ultima_dt.strftime("%d/%m/%Y %H:%M")
+                except:
+                    ultima_formateada = "N/A"
+            else:
+                ultima_formateada = "N/A"
+
             self.tree.insert("", "end", values=(
                 usuario["id"],
                 usuario["nombreUsuario"],
                 usuario["rol"],
-                usuario.get("ultimaConexion", "N/A")
+                ultima_formateada
             ))
-        
+ 
         crear_separador(self.scroll_container)
         
         frame_botones = ctk.CTkFrame(self, fg_color="transparent")
@@ -97,7 +112,7 @@ class ListaUsuarios(ctk.CTkFrame):
     
     def irCrearUsuario(self):
         self.pack_forget()
-        CargarUsuario(self.master, on_back=self.volver)
+        FormUsuario(self.master, on_back=self.volver_a_lista,  modo="alta")
 
     def modificarUsuario(self):
         selected = self.tree.focus()
@@ -106,8 +121,8 @@ class ListaUsuarios(ctk.CTkFrame):
             return
         usuario_id = self.tree.item(selected)["values"][0]
         self.pack_forget()
-        CargarUsuario(self.master, on_back=self.volver)
+        FormUsuario(self.master, on_back=self.volver_a_lista,  modo="edicion", idUsuario=usuario_id)
     
-    def volver(self):
-        self.pack_forget()
-        self.on_back()
+    def volver_a_lista(self):
+        self.destroy()            
+        ListaUsuarios(self.master, self.on_back)

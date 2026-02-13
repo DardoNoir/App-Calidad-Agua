@@ -1,10 +1,9 @@
 import customtkinter as ctk
 import src.ui.session as session
 from src.ui.mediciones.mediciones import CargarMediciones
-from src.ui.usuarios.usuarios import CargarUsuario
 from src.ui.mediciones.historialMediciones import HistorialMediciones
 from src.ui.mediciones.descargarMediciones import DescargarMediciones
-from src.ui.parametros.listaParamteros import ListaParametros
+
 
 
 class MenuPrincipal(ctk.CTkFrame):   

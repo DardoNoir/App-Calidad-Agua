@@ -56,7 +56,7 @@ class LoginWindow(ctk.CTkFrame):
         if not data:
             messagebox.showerror("Error", "Usuario y/o Contraseña Incorrectos")
             return
-
+        
         session.currentUser = SesionUsuario(
             id=data["id"],
             nombreUsuario=data["nombreUsuario"],

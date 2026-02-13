@@ -26,6 +26,31 @@ def crearUsuario(nombreUsuario: str, password: str, rol: str, db_path: Optional[
             (nombreUsuario, pw_hash, rol)
         )
         return cur.lastrowid  # ID del usuario recién creado
+    
+def actualizarUsuario(idUsuario, nombreUsuario, password, rol, db_path:Optional[str]=None):
+    pw_hash = hash_password(password)
+
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE usuario
+            SET nombreUsuario = ?, rol = ?, password = ?
+            WHERE id = ?
+        """
+        ,(nombreUsuario, password, rol, idUsuario))
+
+def actualizarUsuarioSinPassword(idUsuario, nombreUsuario, rol, db_path:Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            UPDATE usuario
+            SET nombreUsuario = ?, rol = ?
+            WHERE id = ?
+        """
+        ,(nombreUsuario, rol, idUsuario))
+
 
 def traerUsuarios(db_path: Optional[str]=None):
     """
@@ -34,7 +59,7 @@ def traerUsuarios(db_path: Optional[str]=None):
     """
     with connection(db_path) as conn:
         cur = conn.cursor()
-        cur.execute("SELECT id, nombreUsuario, rol FROM usuario")
+        cur.execute("SELECT * FROM usuario")
         return [dict(row) for row in cur.fetchall()]  # Convierte filas a dict
 
 def traerUsuarioPorNombre(nombreUsuario: str, db_path: Optional[str]=None):
@@ -55,7 +80,7 @@ def traerUsuarioPorId(id: int, db_path: Optional[str]=None):
     """
     with connection(db_path) as conn:
         cur = conn.cursor()
-        cur.execute("SELECT nombreUsuario FROM usuario WHERE id = ?", (id,))
+        cur.execute("SELECT * FROM usuario WHERE id = ?", (id,))
         row = cur.fetchone()
         return dict(row) if row else None
 
@@ -68,28 +93,21 @@ def autenticarUsuario(nombreUsuario: str, password: str, db_path=None):
         print("Contraseña incorrecta")
         return None
 
+    ahora = datetime.now()
+
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
-            "UPDATE usuario SET ultimoInicio = CURRENT_TIMESTAMP WHERE id = ?",
-            (usuario["id"],)
+            "UPDATE usuario SET ultimoInicio = ? WHERE id = ?",
+            (ahora, usuario["id"])
         )
 
     return usuario
 
-def actualizarPassword(id_usuario: int, newPassword: str, db_path: Optional[str]=None):    
-    pw_hash = hash_password(newPassword)
-    with connection(db_path) as conn:
-        cur = conn.cursor()
-        cur.execute(
-            """
-            UPDATE usuario SET password = ? WHERE id = ?
-        """,
-        (pw_hash, id_usuario))
-
 def existeUsuario(nombre: str, db_path: Optional[str]=None):
     user=traerUsuarioPorNombre(nombre, db_path)
     return user is not None
+
 # ============================================================
 #               MANEJO DE LUGARES
 # ============================================================
