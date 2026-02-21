@@ -4,6 +4,7 @@ from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
 from pathlib import Path
 from src.reports.pdfReport import generarReporte
+from src.reports.excelReport import generarExcelMediciones
 
 
 
@@ -58,7 +59,7 @@ class DescargarMediciones(ctk.CTkFrame):
 
         columnas = ("id", "fecha", "usuario", "ica", "clasificacion", "obs", "cargada")
 
-        self.tree = ttk.Treeview(tabla_frame, columns= columnas, show="headings")
+        self.tree = ttk.Treeview(tabla_frame, columns= columnas, show="headings", selectmode="extended")
 
         self.tree.heading("id", text="Nro")
         self.tree.heading("fecha", text="Fecha Medición")
@@ -99,7 +100,8 @@ class DescargarMediciones(ctk.CTkFrame):
             fg_color="#007BFF",
             hover_color="#0fb300",
             text="Descargar Mediciones (Excel)",
-            width=150,)
+            width=150,
+            command=self.descargar_excel)
         btn_descargarExcel.pack(side="left", padx=20)
 
         btn_volver = ctk.CTkButton(frame_botones,
@@ -163,3 +165,20 @@ class DescargarMediciones(ctk.CTkFrame):
         )
 
         messagebox.showinfo("Éxito", f"Reporte generado en: {ruta}")
+    
+    def descargar_excel(self):
+        selected = self.tree.selection()
+
+        if not selected:
+            messagebox.showerror("Error", "No se han seleccionado Mediciones")
+
+        ids = [int(self.tree.item(s)["values"][0]) for s in selected]
+
+        ruta = Path("mediciones_exportadas.xlsx")
+
+        generarExcelMediciones(
+            idsMediciones=ids,
+            rutaGuardar=ruta
+        )
+
+        messagebox.showinfo("Éxito", f"Excel generado en: {ruta}")
