@@ -77,6 +77,8 @@ class FormUsuario(ctk.CTkFrame):
             command=self.volver
         ).pack(side="left", padx=15)
 
+        pie_pagina(self.scroll_container)
+
 
     def cargar_datos(self):
         if self.idUsuario is None:

@@ -3,6 +3,7 @@ import src.ui.session as session
 from src.ui.mediciones.mediciones import CargarMediciones
 from src.ui.mediciones.historialMediciones import HistorialMediciones
 from src.ui.mediciones.descargarMediciones import DescargarMediciones
+from src.ui.uiUtils import pie_pagina
 
 
 
@@ -56,10 +57,7 @@ class MenuPrincipal(ctk.CTkFrame):
                         text="Cerrar Sesión",
                         command=self.on_logout
                         ).pack(pady=(50,10))
-            ctk.CTkLabel(self, 
-            text="© 2026 Calidad del Agua", 
-            font=("Segoe UI", 10),
-            text_color="#888888").pack(side="bottom", pady=10)
+            pie_pagina(self)
 
         else:
             self.on_open_mediciones()

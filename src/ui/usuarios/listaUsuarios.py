@@ -109,6 +109,8 @@ class ListaUsuarios(ctk.CTkFrame):
              command=on_back
         ).pack(side="left", padx=20)
 
+        pie_pagina(self.scroll_container)
+
     
     def irCrearUsuario(self):
         self.pack_forget()

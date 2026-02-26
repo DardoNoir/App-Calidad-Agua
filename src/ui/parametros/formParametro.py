@@ -50,6 +50,8 @@ class FormParametro(ctk.CTkFrame):
             ("limiteMaxAceptable", "Límite Máximo Aceptable"),
             ("limiteMinWarning", "Límite Mínimo Crítico"),
             ("limiteMaxWarning", "Límite Máximo Crítico"),
+            ("rangoPosibleMin", "Rango Posible Mínimo"),
+            ("rangoPosibleMax", "Rango Posible Máximo"),
             ("normativa", "Normativa")]
         
         for key, label in camposReferencia:
@@ -124,8 +126,12 @@ class FormParametro(ctk.CTkFrame):
         self.entries["limiteMaxAceptable"].insert(0, r.get("limiteMaxAceptable", 0))
         self.entries["limiteMinWarning"].insert(0, r.get("limiteMinWarning", 0))
         self.entries["limiteMaxWarning"].insert(0, r.get("limiteMaxWarning", 0))
+        self.entries["rangoPosibleMin"].insert(0, r.get("rangoPosibleMin", 0))
+        self.entries["rangoPosibleMax"].insert(0, r.get("rangoPosibleMax", 0))
         self.entries["normativa"].insert(0, r.get("normativa", ""))
         self.entries["ponderacion"].insert(0, pond.get("ponderacion", 0))
+
+        pie_pagina(self.scroll_container)
 
     # =============================
     # GUARDAR
@@ -161,7 +167,9 @@ class FormParametro(ctk.CTkFrame):
                     float(datos["limiteMaxWarning"]),
                     float(datos["limiteMinAceptable"]),
                     float(datos["limiteMinWarning"]),
-                    datos["normativa"]
+                    datos["normativa"],
+                    float(datos["rangoPosibleMin"]),
+                    float(datos["rangoPosibleMax"])
                 )
 
                 insertarPonderacionParametro(id_param, ponderacion)
@@ -183,7 +191,9 @@ class FormParametro(ctk.CTkFrame):
                     float(datos["limiteMaxWarning"]),
                     float(datos["limiteMinAceptable"]),
                     float(datos["limiteMinWarning"]),
-                    datos["normativa"]
+                    datos["normativa"],
+                    float(datos["rangoPosibleMin"]),
+                    float(datos["rangoPosibleMax"])
                 )
 
                 actualizarPonderacion(

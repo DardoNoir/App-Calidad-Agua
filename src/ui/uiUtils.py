@@ -17,3 +17,9 @@ def crear_separador(contenedor, padx=60):
     linea = ctk.CTkFrame(contenedor, height=2, fg_color="gray70")
     linea.pack(fill="x", padx=padx, pady=15)
     return linea
+
+def pie_pagina(self):
+    ctk.CTkLabel(self, 
+                     text="© 2026 Calidad del Agua", 
+                     font=("Segoe UI", 10),
+                     text_color="#888888").pack(side="bottom", pady=10)

@@ -5,6 +5,7 @@ from datetime import datetime
 from src.utils.datetime import parse_fecha_str
 from src.ui.uiUtils import *
 from tkinter import messagebox
+from tkcalendar import DateEntry
 
 
 class CargarMediciones(ctk.CTkFrame):
@@ -14,6 +15,13 @@ class CargarMediciones(ctk.CTkFrame):
         self.on_back = on_back
 
         self.parametros = traerParametros()
+        self.lugares = traerLugares()
+
+        self.provincias = sorted(set(l["provincia"] for l in self.lugares if l["provincia"]))
+        self.ciudades = sorted(set(l["ciudad"] for l in self.lugares if l["ciudad"]))
+        self.cuerpos = sorted(set(l["cuerpoAgua"] for l in self.lugares if l["cuerpoAgua"]))
+        self.zonas = sorted(set(l["zona"] for l in self.lugares if l["zona"]))
+        
         self.inputs = {}
 
         self.scroll_container = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -27,20 +35,58 @@ class CargarMediciones(ctk.CTkFrame):
 
         crear_subtitulo(self.scroll_container, "Río a Medir")
 
-        self.prov = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Provincia")
-        self.prov.pack()
+        self.prov = ctk.CTkComboBox(self.scroll_container, values=self.provincias,
+                                    width=300, height=30, corner_radius=5,
+                                    button_color="#097eec", button_hover_color="#0fb300",
+                                    dropdown_hover_color="#787978")
+        self.prov.set("-")
+        self.prov.pack(pady=3)
 
-        self.ciudad = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Ciudad")
-        self.ciudad.pack()
+        self.ciudad = ctk.CTkComboBox(self.scroll_container, values=self.ciudades,
+                                      width=300, height=30, corner_radius=5, 
+                                      button_color="#097eec", button_hover_color="#0fb300",
+                                      dropdown_hover_color="#787978")
+        self.ciudad.set("-")
+        self.ciudad.pack(pady=3)
 
-        self.cuerpoAgua = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Cuerpo de Agua")
-        self.cuerpoAgua.pack()
+        self.cuerpoAgua = ctk.CTkComboBox(self.scroll_container, values=self.cuerpos,
+                                          width=300, height=30, corner_radius=5, 
+                                          button_color="#097eec", button_hover_color="#0fb300",
+                                          dropdown_hover_color="#787978")
+        self.cuerpoAgua.set("-")
+        self.cuerpoAgua.pack(pady=3)
+
+        self.zona = ctk.CTkComboBox(self.scroll_container, values=self.zonas,
+                                    width=300, height=30, corner_radius=5,
+                                    button_color="#097eec", button_hover_color="#0fb300",
+                                    dropdown_hover_color="#787978")
+        self.zona.set("-")
+        self.zona.pack(pady=3)
 
         crear_separador(self.scroll_container)
 
         crear_subtitulo(self.scroll_container,"Fecha de la Medición")
-        self.fechaMedicion = ctk.CTkEntry(self.scroll_container, width=300, placeholder_text="Fecha de Medición (DD/MM/AAAA HH:MM)")
-        self.fechaMedicion.pack()
+        self.frame_fecha = ctk.CTkFrame(self.scroll_container, fg_color="transparent")
+        self.frame_fecha.pack(pady=5)
+
+        self.fechaEntry = DateEntry(self.frame_fecha, date_pattern="dd/mm/yyyy" ,width=40, 
+                                    background="#097eec", foreground="white", borderwidth=2)
+        self.fechaEntry.pack(side = "left", padx=5)
+        horas = [f"{h:02d}" for h in range(24)]
+        minutos = [f"{m:02d}" for m in range(60)]
+
+        self.horaCombo = ctk.CTkComboBox(self.frame_fecha, values=horas, width=80, height=30, corner_radius=5,
+                                        button_color="#097eec", button_hover_color="#0fb300",
+                                        dropdown_hover_color="#787978")
+        self.horaCombo.set("hs")
+        self.horaCombo.pack(side = "left", padx=5)
+
+        self.minutoCombo = ctk.CTkComboBox(self.frame_fecha, values=minutos, width=80, height=30, corner_radius=5,
+                                        button_color="#097eec", button_hover_color="#0fb300",
+                                        dropdown_hover_color="#787978")
+        self.minutoCombo.set("min")
+        self.minutoCombo.pack(side = "left", padx=5)
+
         crear_separador(self.scroll_container)
 
         crear_subtitulo(self.scroll_container, "Valores Medidos")
@@ -88,20 +134,80 @@ class CargarMediciones(ctk.CTkFrame):
             width=250,
             command=on_back).pack()
 
-        ctk.CTkLabel(self, 
-                     text="© 2026 Calidad del Agua", 
-                     font=("Segoe UI", 10),
-                     text_color="#888888").pack(side="bottom", pady=10)
+        pie_pagina(self.scroll_container)
 
             
     def guardar(self):
         if session.currentUser is None:
             print("Error: No user is currently logged in")
             return
-    
-        fecha = parse_fecha_str(self.fechaMedicion.get())
+        
+        if self.prov.get() == "-" or self.ciudad.get() == "-" or self.cuerpoAgua.get() == "-" or self.zona.get() == "-":
+            messagebox.showerror("Error en selección de lugar", "Por favor, seleccione o ingrese un Cuerpo de Agua válido.")
+            return
 
-        valores = { pid: float(e.get()) for pid, e in self.inputs.items() if e.get()}
+        fechastr = self.fechaEntry.get()
+        hora = self.horaCombo.get()
+        minuto = self.minutoCombo.get()
+        if hora == "hs" or minuto == "min":
+            messagebox.showerror("Error en fecha y hora", "Por favor, seleccione una hora y minuto válidos.")
+            return
+
+        fechaCompletaStr = f"{fechastr} {hora}:{minuto}"
+        fecha = parse_fecha_str(fechaCompletaStr)
+
+        valores = {}
+        errores = []
+
+        for pid, entry in self.inputs.items():
+            valor_str = entry.get().strip()
+
+            if not valor_str:
+                par = traerParametroPorId(pid)
+                if par is not None:
+                    errores.append(f"Valor vacío en parámetro: {par['nombreParametro']}")
+                    continue
+
+            try:
+                valor = float(valor_str)
+            except ValueError:
+                par = traerParametroPorId(pid)
+                if par is not None:
+                    errores.append(f"Valor inválido en parámetro: {par['nombreParametro']}\n"
+                                   f"Se esperaba un número.")
+                    continue
+
+            referencia = traerValoresReferenciaPorParametro(pid)
+
+            if referencia:
+                rango_min = referencia.get("rangoPosibleMin")
+                rango_max = referencia.get("rangoPosibleMax")
+
+                if rango_min is not None and valor < rango_min:
+                    parametro = traerParametroPorId(pid)
+                    if parametro is not None:
+                        errores.append(
+                            f"{parametro['nombreParametro']} fuera de rango.\n"
+                            f"Rango posible: {rango_min} - {rango_max}"
+                        )
+
+
+                if rango_max is not None and valor > rango_max:
+                    parametro = traerParametroPorId(pid)
+                    if parametro is not None:
+                        errores.append(
+                            f"{parametro['nombreParametro']} fuera de rango.\n"
+                            f"Rango posible: {rango_min} - {rango_max}"
+                        )
+
+            valores[pid] = valor
+
+        if errores:
+            messagebox.showerror(
+                "Error en valores cargados",
+                "\n\n".join(errores)
+            )
+            return
 
         idMed = guardarMedicionCompleta(
             self.prov.get(),
@@ -110,8 +216,11 @@ class CargarMediciones(ctk.CTkFrame):
             fecha,
             session.currentUser.id,
             self.comments.get(),
-            valores)
+            valores,
+            self.zona.get()
+        )
 
         self.on_back()
-        messagebox.showinfo("Guardado Exitoso","✔ Medición Guardada Correctamente")
+        messagebox.showinfo("Guardado Exitoso", "✔ Medición Guardada Correctamente")
+    
         

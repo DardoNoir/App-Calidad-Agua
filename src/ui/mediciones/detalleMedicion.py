@@ -61,7 +61,8 @@ class DetalleMedicion(ctk.CTkFrame):
         ctk.CTkLabel(scroll, text=f"Provincia: {self.lugar['provincia']}").pack(anchor="w", padx=60)
         ctk.CTkLabel(scroll, text=f"Ciudad: {self.lugar['ciudad']}").pack(anchor="w", padx=60)
         ctk.CTkLabel(scroll, text=f"Cuerpo de Agua: {self.lugar['cuerpoAgua']}").pack(anchor="w", padx=60)
-
+        ctk.CTkLabel(scroll, text=f"Zona: {self.lugar['zona']}").pack(anchor="w", padx=60)
+        
         crear_separador(scroll)
 
         # ======================
@@ -140,15 +141,7 @@ class DetalleMedicion(ctk.CTkFrame):
             command=self.on_back
         ).pack(pady=20)
 
-        # ======================
-        # Footer
-        # ======================
-        ctk.CTkLabel(
-            self,
-            text="© 2026 Calidad del Agua",
-            font=("Segoe UI", 10),
-            text_color="#888888"
-        ).pack(side="bottom", pady=10)
+        pie_pagina(scroll)
 
     # =====================================================
     # Gráfico de parámetro

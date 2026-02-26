@@ -33,6 +33,7 @@ class DescargarMediciones(ctk.CTkFrame):
         provincias = sorted(set(l["provincia"]for l in self.lugares))
         ciudades = sorted(set(l["ciudad"]for l in self.lugares))
         cuerpoAgua = sorted(set(l["cuerpoAgua"]for l in self.lugares))
+        zonas = sorted(set(l["zona"] for l in self.lugares))
 
         self.combo_prov = ctk.CTkComboBox(filtro_frame, values= ["-"] + provincias, width= 150)
         self.combo_prov.grid(row = 0, column = 0, padx = 5)
@@ -40,6 +41,8 @@ class DescargarMediciones(ctk.CTkFrame):
         self.combo_ciud.grid(row = 0, column = 1, padx = 5)
         self.combo_CA = ctk.CTkComboBox(filtro_frame, values= ["-"] + cuerpoAgua, width= 150)
         self.combo_CA.grid(row = 0, column = 2, padx = 5)
+        self.combo_zona = ctk.CTkComboBox(filtro_frame, values= ["-"] + zonas, width= 150)
+        self.combo_zona.grid(row = 0, column = 3, padx = 5)
 
         ctk.CTkButton(filtro_frame,
             height=40,
@@ -48,7 +51,7 @@ class DescargarMediciones(ctk.CTkFrame):
             hover_color="#0fb300",
             text="Buscar", 
             width=150,
-            command=self.buscar_mediciones).grid(row=0, column=3, padx=10)
+            command=self.buscar_mediciones).grid(row=0, column=4, padx=10)
         
         crear_separador(self.scroll_container)
 
@@ -114,10 +117,7 @@ class DescargarMediciones(ctk.CTkFrame):
             command=self.on_back)
         btn_volver.pack(side="left", padx=20)
 
-        ctk.CTkLabel(self, 
-            text="© 2026 Calidad del Agua", 
-            font=("Segoe UI", 10),
-            text_color="#888888").pack(side="bottom", pady=10)
+        pie_pagina(self.scroll_container)
 
 
     def normalizar(self, valor):
@@ -130,13 +130,14 @@ class DescargarMediciones(ctk.CTkFrame):
         prov = self.normalizar(self.combo_prov.get())
         ciud = self.normalizar(self.combo_ciud.get())
         cuerpoAgua = self.normalizar(self.combo_CA.get())
+        zona = self.normalizar(self.combo_zona.get())
         
         if (prov == None or ciud == None or cuerpoAgua == None):
             messagebox.showerror("Error", "Lugar no selecionado")
             return
 
 
-        self.mediciones = traerMedicionesFiltradas(prov, ciud, cuerpoAgua)
+        self.mediciones = traerMedicionesFiltradas(prov, ciud, cuerpoAgua, zona)
 
 
         for m in self.mediciones: 

@@ -6,17 +6,10 @@ class ReferenciaParametro(TypedDict, total=False):
     limiteMaxAceptable: Optional[float]
     limiteMinWarning: Optional[float]
     limiteMaxWarning: Optional[float]
+   
 
 
 def EvaluarParametro(valor: float, referencia: Optional[ReferenciaParametro] | None):
-    """
-    Estados posibles:
-    - Crítico
-    - Warning
-    - Aceptable
-    - Sin referencia
-    """
-
     if not referencia:
         return ("Sin referencia", "")
 
@@ -24,7 +17,7 @@ def EvaluarParametro(valor: float, referencia: Optional[ReferenciaParametro] | N
     limiteMax = referencia.get("limiteMaxAceptable")
     limiteMinWarning = referencia.get("limiteMinWarning")
     limiteMaxWarning = referencia.get("limiteMaxWarning")
-
+    
     # ===== CRÍTICOS =====
     if limiteMinWarning is not None and valor < limiteMinWarning:
         desvio = limiteMinWarning - valor

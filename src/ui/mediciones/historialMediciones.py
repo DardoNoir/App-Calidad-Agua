@@ -31,6 +31,7 @@ class HistorialMediciones(ctk.CTkFrame):
         provincias = sorted(set(l["provincia"] for l in self.lugares))
         ciudades = sorted(set(l["ciudad"] for l in self.lugares))
         cuerpoAgua = sorted(set(l["cuerpoAgua"] for l in self.lugares))
+        zonas = sorted(set(l["zona"] for l in self.lugares))
 
         self.combo_prov = ctk.CTkComboBox(filtro_frame, values=["-"] + provincias, width=150)
         self.combo_prov.grid(row=0, column=0, padx=5)
@@ -41,6 +42,9 @@ class HistorialMediciones(ctk.CTkFrame):
         self.combo_CA = ctk.CTkComboBox(filtro_frame, values=["-"] + cuerpoAgua, width=150)
         self.combo_CA.grid(row=0, column=2, padx=5)
 
+        self.combo_zona = ctk.CTkComboBox(filtro_frame, values=["-"] + zonas, width=150)
+        self.combo_zona.grid(row=0, column=3, padx=5)
+
         ctk.CTkButton(
             filtro_frame,
             height=40,
@@ -50,7 +54,7 @@ class HistorialMediciones(ctk.CTkFrame):
             text="Buscar",
             width=150,
             command=self.buscar_mediciones
-        ).grid(row=0, column=3, padx=10)
+        ).grid(row=0, column=4, padx=10)
 
         crear_separador(self.scroll_container)
         crear_subtitulo(self.scroll_container, "Historial de medidas")
@@ -113,6 +117,8 @@ class HistorialMediciones(ctk.CTkFrame):
             text_color="#888888"
         ).pack(side="bottom", pady=10)
 
+        pie_pagina(self.scroll_container)
+
     # =====================================================
     # LÓGICA
     # =====================================================
@@ -126,12 +132,13 @@ class HistorialMediciones(ctk.CTkFrame):
         prov = self.normalizar(self.combo_prov.get())
         ciud = self.normalizar(self.combo_ciud.get())
         cuerpoAgua = self.normalizar(self.combo_CA.get())
+        zona = self.normalizar(self.combo_zona.get())
 
-        if prov is None or ciud is None or cuerpoAgua is None:
+        if prov is None or ciud is None or cuerpoAgua is None or zona is None:
             messagebox.showerror("Error", "Lugar no seleccionado")
             return
 
-        self.mediciones = traerMedicionesFiltradas(prov, ciud, cuerpoAgua)
+        self.mediciones = traerMedicionesFiltradas(prov, ciud, cuerpoAgua, zona)
 
         for m in self.mediciones:
             self.tree.insert("", "end", values=(

@@ -119,6 +119,8 @@ class ListaParametros(ctk.CTkFrame):
             command=self.verificarYSalir
         ).pack(side="left", padx=20)
 
+        pie_pagina(self.scroll_container)
+
 
     def irAgregarParametro(self):
         self.destroy()

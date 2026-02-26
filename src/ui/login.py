@@ -3,6 +3,7 @@ from tkinter import messagebox
 import src.ui.session as session
 from src.ui.session import SesionUsuario
 from src.data.repository import autenticarUsuario
+from src.ui.uiUtils import pie_pagina
 
 class LoginWindow(ctk.CTkFrame):
     def __init__(self, master, on_login_success):
@@ -39,10 +40,7 @@ class LoginWindow(ctk.CTkFrame):
                       hover_color="#f8b808",
                       command=master.destroy).pack(pady=(5,10))
 
-        ctk.CTkLabel(self, 
-                     text="© 2026 Calidad del Agua", 
-                     font=("Segoe UI", 10),
-                     text_color="#888888").pack(side="bottom", pady=10)
+        pie_pagina(self)
 
     def login(self):
         usuario = self.usuario_entry.get().strip()

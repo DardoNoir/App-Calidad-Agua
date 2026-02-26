@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS lugar(
     provincia TEXT,
     ciudad TEXT,
     cuerpoAgua TEXT,
+    zona TEXT,
     UNIQUE(provincia, ciudad, cuerpoAgua)
 );
 
@@ -38,6 +39,8 @@ CREATE TABLE IF NOT EXISTS valorReferencia(
     limiteMaxWarning REAL,
     limiteMinWarning REAL,
     normativa TEXT,
+    rangoPosibleMin REAL,
+    rangoPosibleMax REAL,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );
 

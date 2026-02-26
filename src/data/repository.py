@@ -12,20 +12,14 @@ from src.analysis.subindices import calcular_subindice_parametro
 #                 MANEJO DE USUARIOS
 # ============================================================
 def crearUsuario(nombreUsuario: str, password: str, rol: str, db_path: Optional[str]=None):
-    """
-    Crea un nuevo usuario en la base de datos.
-    - Recibe nombreUsuario, password y rol ('Administrador' o 'Usuario')
-    - Hashea la contraseña antes de guardarla
-    - Devuelve el ID del usuario creado
-    """
-    pw_hash = hash_password(password)  # Se transforma la contraseña en un hash seguro
+    pw_hash = hash_password(password)  
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO usuario (nombreUsuario, password, rol) VALUES (?, ?, ?)",
             (nombreUsuario, pw_hash, rol)
         )
-        return cur.lastrowid  # ID del usuario recién creado
+        return cur.lastrowid  
     
 def actualizarUsuario(idUsuario, nombreUsuario, password, rol, db_path:Optional[str]=None):
     pw_hash = hash_password(password)
@@ -53,20 +47,12 @@ def actualizarUsuarioSinPassword(idUsuario, nombreUsuario, rol, db_path:Optional
 
 
 def traerUsuarios(db_path: Optional[str]=None):
-    """
-    Devuelve una lista con todos los usuarios del sistema.
-    Cada usuario se devuelve como un diccionario {'id':..., 'nombreUsuario':..., 'rol':...}
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM usuario")
         return [dict(row) for row in cur.fetchall()]  # Convierte filas a dict
 
 def traerUsuarioPorNombre(nombreUsuario: str, db_path: Optional[str]=None):
-    """
-    Trae todos los datos de un usuario buscado por su nombre.
-    Devuelve un dict o None si no existe.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM usuario WHERE nombreUsuario = ?", (nombreUsuario,))
@@ -74,10 +60,6 @@ def traerUsuarioPorNombre(nombreUsuario: str, db_path: Optional[str]=None):
         return dict(row) if row else None
 
 def traerUsuarioPorId(id: int, db_path: Optional[str]=None):
-    """
-    Devuelve el usuario cuyo id coincide.
-    Solo trae el nombre del usuario.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM usuario WHERE id = ?", (id,))
@@ -111,20 +93,15 @@ def existeUsuario(nombre: str, db_path: Optional[str]=None):
 # ============================================================
 #               MANEJO DE LUGARES
 # ============================================================
-def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, db_path: Optional[str] = None) -> int:
-    """
-    Inserta un nuevo lugar en la tabla 'lugar'.
-    - Si el lugar (provincia, ciudad, cuerpoAgua) ya existe → devuelve su ID
-    - Si no existe → lo crea y devuelve el nuevo ID
-    """
+def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, zona: str, db_path: Optional[str] = None) -> int:
     with connection(db_path) as conn:
         cur = conn.cursor()
         
         # Verifica si ya existe
         cur.execute("""
             SELECT id FROM lugar
-            WHERE provincia = ? AND ciudad = ? AND cuerpoAgua = ?
-        """, (provincia, ciudad, cuerpoAgua))
+            WHERE provincia = ? AND ciudad = ? AND cuerpoAgua = ? AND zona = ?
+        """, (provincia, ciudad, cuerpoAgua, zona))
 
         row = cur.fetchone()
         if row is not None:
@@ -132,9 +109,9 @@ def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, db_path: Optiona
         
         # Si no existe, lo inserta
         cur.execute("""
-            INSERT INTO lugar (provincia, ciudad, cuerpoAgua)
-            VALUES (?, ?, ?)
-        """, (provincia, ciudad, cuerpoAgua))
+            INSERT INTO lugar (provincia, ciudad, cuerpoAgua, zona)
+            VALUES (?, ?, ?, ?)
+        """, (provincia, ciudad, cuerpoAgua, zona))
 
          # cur.lastrowid NUNCA es None cuando hay INSERT, pero lo tipamos igual
         last_id = cur.lastrowid
@@ -144,18 +121,12 @@ def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, db_path: Optiona
         return int(last_id)
 
 def traerLugares(db_path: Optional[str]=None):
-    """
-    Devuelve todos los lugares ordenados por provincia, ciudad y cuerpo de agua.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM lugar ORDER BY provincia, ciudad, cuerpoAgua")
         return [dict(row) for row in cur.fetchall()]
 
 def traerLugarPorId(idLugar: int, db_path: Optional[str]=None):
-    """
-    Devuelve un lugar según su ID, o None si no existe.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM lugar WHERE id = ?", (idLugar,))
@@ -166,11 +137,6 @@ def traerLugarPorId(idLugar: int, db_path: Optional[str]=None):
 #               MANEJO DE PARÁMETROS
 # ============================================================
 def insertarParametro(codigo: str, nombreParametro: str, unidad: str, db_path: Optional[str] = None) -> int:
-    """
-    Inserta un nuevo parámetro (ej: pH, Turbiedad, DBO, etc.)
-    - Si ya existe con ese código/nombre/unidad → devuelve su ID
-    - Si no existe → lo crea
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -196,18 +162,12 @@ def insertarParametro(codigo: str, nombreParametro: str, unidad: str, db_path: O
         return int(last_id)
 
 def traerParametros(db_path: Optional[str]=None):
-    """
-    Devuelve la lista completa de parámetros registrados.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM parametro")
         return [dict(row) for row in cur.fetchall()]
 
 def traerParametroPorId(idParametro: int, db_path: Optional[str]=None):
-    """
-    Devuelve un parámetro según su ID.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM parametro WHERE id = ?", (idParametro,))
@@ -215,9 +175,6 @@ def traerParametroPorId(idParametro: int, db_path: Optional[str]=None):
         return dict(row) if row else None
 
 def traerParametroPorNombre(nombreParametro: str, db_path: Optional[str]=None):
-    """
-    Devuelve un parámetro según su nombre.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM parametro WHERE nombreParametro = ?", (nombreParametro,))
@@ -240,13 +197,6 @@ def actualizarParametro(idParametro: int, codigo: str, nombreParametro: str, uni
 #               MANEJO DE MEDICIONES
 # ============================================================
 def insertarMedicion(idLugar: int, fechaMedicion: str, medidaTomadaPor: int, comentarios: str, db_path: Optional[str] = None) -> int:
-    """
-    Inserta una nueva medición realizada en un lugar.
-    - idLugar: lugar donde se tomó
-    - fechaMedicion
-    - medidaTomadaPor: ID del usuario
-    - comentarios: texto libre del operador
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -262,9 +212,6 @@ def insertarMedicion(idLugar: int, fechaMedicion: str, medidaTomadaPor: int, com
         return int(last_id)
 
 def traerMedicionPorId(idMedicion: int, db_path: Optional[str]=None):
-    """
-    Trae una medición por su ID.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM medicion WHERE id = ?", (idMedicion,))
@@ -272,9 +219,6 @@ def traerMedicionPorId(idMedicion: int, db_path: Optional[str]=None):
         return dict(row) if row else None
 
 def traerMedicionesPorLugar(idLugar: int, db_path: Optional[str]=None):
-    """
-    Devuelve todas las mediciones tomadas en un lugar específico.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -285,9 +229,6 @@ def traerMedicionesPorLugar(idLugar: int, db_path: Optional[str]=None):
         return [dict(row) for row in cur.fetchall()]
 
 def traerMedicionesPorUsuario(idUsuario: int, db_path: Optional[str]=None):
-    """
-    Devuelve las mediciones cargadas por un usuario.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -298,9 +239,6 @@ def traerMedicionesPorUsuario(idUsuario: int, db_path: Optional[str]=None):
         return [dict(row) for row in cur.fetchall()]
 
 def traerMedicionesPorFecha(fechaMedicion: str, db_path: Optional[str]=None):
-    """
-    Devuelve las mediciones tomadas en una fecha exacta.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -311,9 +249,6 @@ def traerMedicionesPorFecha(fechaMedicion: str, db_path: Optional[str]=None):
         return [dict(row) for row in cur.fetchall()]
 
 def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: str, db_path: Optional[str]=None):
-    """
-    Devuelve las mediciones tomadas en un lugar y fecha específicos.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -324,9 +259,6 @@ def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: str, db_path: Opt
         return [dict(row) for row in cur.fetchall()]
 
 def traerMediciones(db_path: Optional[str]=None):
-    """
-    Devuelve todas las mediciones existentes.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM medicion")
@@ -349,18 +281,15 @@ def guardarMedicionCompleta(
         usuarioId: int,
         comentarios: str,
         valores: dict[int, float],
+        zona: str,
         db_path: Optional[str]=None
 ):
-    """
-    valores = {idParametro: valor}
-    """
     # Lugar
-    idLugar = insertarLugar(provincia, ciudad, cuerpoAgua)
+    idLugar = insertarLugar(provincia, ciudad, cuerpoAgua, zona)
 
     # Medición
     fecha = parse_fecha_str(fechaMedicion)
     idMedicion = insertarMedicion(idLugar, fecha, usuarioId, comentarios)
-
 
     subindices = []
     parametrosMedidos = []
@@ -441,7 +370,7 @@ def traerMedicionesConDetalleLugar(db_path: Optional[str]=None):
         """)
         return [dict(row) for row in cur.fetchall()]
 
-def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, db_path: Optional[str]=None):
+def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, zona=None, db_path: Optional[str]=None):
     with connection(db_path) as conn:
         cur = conn.cursor()
         query = """
@@ -455,7 +384,8 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, db_pa
                 m.cargadaSistema,
                 l.provincia,
                 l.ciudad,
-                l.cuerpoAgua
+                l.cuerpoAgua,
+                l.zona
             FROM medicion m
             JOIN lugar l ON m.idLugar = l.id
             JOIN usuario u ON m.medidaTomadaPor = u.id
@@ -472,6 +402,9 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, db_pa
         if cuerpoAgua:
             query += " AND l.cuerpoAgua = ?"
             params.append(cuerpoAgua)
+        if zona:
+            query += " AND l.zona = ?"
+            params.append(zona)
 
         query += " ORDER BY m.fechaMedicion DESC"
 
@@ -509,10 +442,6 @@ def insertarValorMedido(
         return ids_insertados
 
 def traerValoresMedidosDeMedicion(idMedicion: int, db_path: Optional[str]=None):
-    """
-    Trae todos los valores (pH, DBO, etc.) que pertenecen a una medición específica.
-    Hace JOIN con la tabla 'parametro' para devolver nombreParametro y unidad.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -525,10 +454,6 @@ def traerValoresMedidosDeMedicion(idMedicion: int, db_path: Optional[str]=None):
         return [dict(row) for row in cur.fetchall()]
 
 def traerTodosLosValoresMedidos(db_path: Optional[str]=None):
-    """
-    Devuelve todos los valores medidos de todas las mediciones.
-    Incluye información del parámetro.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -546,15 +471,7 @@ def traerTodosLosValoresMedidos(db_path: Optional[str]=None):
 
 def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limiteMaxWarning: float,
                               limiteMinAceptable: float, limiteMinWarning:float,
-                              normativa: str,  db_path: Optional[str]=None) -> int:
-    """
-    Inserta los valores de referencia para un parámetro:
-        - Limite máximo aceptable
-        - Límite de advertencia
-        - Límite mínimo aceptable
-        - Limite mínimo de advertencia
-    Si ya existe un registro para ese parámetro → devuelve su ID.
-    """
+                              normativa: str, rangoPosibleMin: float, rangoPosibleMax: float, db_path: Optional[str]=None) -> int:
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT id FROM valorReferencia WHERE idParametro = ?", (idParametro,))
@@ -565,10 +482,10 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
 
         cur.execute("""
             INSERT INTO valorReferencia (idParametro, limiteMaxAceptable, limiteMaxWarning,
-                     limiteMinAceptable, limiteMinWarning, normativa)
-            VALUES (?, ?, ?, ?, ?, ?)
+                     limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (idParametro, limiteMaxAceptable, limiteMaxWarning, 
-              limiteMinAceptable, limiteMinWarning, normativa))
+              limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax))
 
          # cur.lastrowid NUNCA es None cuando hay INSERT, pero lo tipamos igual
         last_id = cur.lastrowid
@@ -578,13 +495,6 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
         return int(last_id)
 
 def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] = None):
-    """
-    Devuelve los valores de referencia para un parámetro específico.
-    Retorna un TypedDict con:
-        - LimiteMax
-        - LimiteWarning
-    o None si no hay referencia para ese parámetro.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -596,18 +506,12 @@ def traerValoresReferenciaPorParametro(idParametro: int, db_path: Optional[str] 
         return dict(row) if row else None
     
 def traerTodosLosValoresReferencia(db_path: Optional[str]=None):
-    """
-    Devuelve una lista con todas las referencias registradas.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM valorReferencia")
         return [dict(row) for row in cur.fetchall()]
 
 def traerValorReferenciaPorId(idValorReferencia: int, db_path: Optional[str]=None):
-    """
-    Devuelve una referencia según su ID.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM valorReferencia WHERE id = ?", (idValorReferencia,))
@@ -619,25 +523,20 @@ def valoresReferenciaCargados(idParametro: int, db_path: Optional[str]=None):
     return referencia is not None
 
 def actualizarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limiteMaxWarning: float,
-                              limiteMinAceptable: float, limiteMinWarning:float, normativa: str, db_path: Optional[str]=None):
+                              limiteMinAceptable: float, limiteMinWarning:float, normativa: str,
+                              rangoPosibleMin: float, rangoPosibleMax: float, db_path: Optional[str]=None):
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
             UPDATE valorReferencia SET limiteMaxAceptable = ?, limiteMaxWarning = ?,
-                     limiteMinAceptable = ?, limiteMinWarning = ?, normativa = ?
+                     limiteMinAceptable = ?, limiteMinWarning = ?, normativa = ?, rangoPosibleMin = ?, rangoPosibleMax = ?  
                      WHERE idParametro = ?
-        """, (limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning, normativa, idParametro))
+        """, (limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax, idParametro))
 
 # ============================================================
 #           MANEJO DE PONDERACIONES
 # ============================================================
 def insertarPonderacionParametro(idParametro: int, ponderacion: float, db_path: Optional[str]=None) -> int:
-    """
-    Inserta una ponderación para un parámetro específico.
-    - idParametro: ID del parámetro
-    - ponderacion: valor entre 0 y 1
-    Devuelve el ID del registro insertado.
-    """
     with connection(db_path) as conn:
         cur = conn.cursor()
         cur.execute("""
