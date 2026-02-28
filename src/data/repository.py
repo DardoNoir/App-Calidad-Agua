@@ -6,7 +6,7 @@ from src.analysis.evaluacion import ReferenciaParametro, EvaluarParametro
 from src.utils.security import verify_password, hash_password
 from src.utils.datetime import parse_fecha_str
 from src.analysis.calculoIca import calcular_ica, clasificar_ica, ajustar_ponderaciones
-from src.analysis.subindices import calcular_subindice_parametro
+from src.analysis.subindices import calcular_subindice_parametro, registrar_curva, _CURVAS
 
 # ============================================================
 #                 MANEJO DE USUARIOS
@@ -309,19 +309,23 @@ def guardarMedicionCompleta(
             db_path)
         
         try:
-            parametro = traerParametroPorId(idParametro, db_path)
-            if parametro is None:
-            # Inconsistencia grave: valor medido sin parámetro
+            par = traerParametroPorId(idParametro)
+            if par is not None:
+                sub = calcular_subindice_parametro(par["nombreParametro"], valor)
+
+            if sub is None:
                 continue
-            sub = calcular_subindice_parametro(parametro["nombreParametro"], valor)
 
             subindices.append({
                 "idParametro": idParametro,
                 "subindice": sub
             })
+
             parametrosMedidos.append(idParametro)
-        except ValueError:
-            pass
+
+        except Exception as e:
+            print(f"Error calculando subindice: {e}")
+            continue
 
     ponderacionesDb = traerPonderacionesParametroActivas(db_path)
     ponderacionBase = {p["idParametro"]:p["ponderacion"] for p in ponderacionesDb}
@@ -576,3 +580,48 @@ def traerPonderacionParametro(idParametro: int, db_path: Optional[str]=None):
         cur.execute("SELECT * FROM ponderacionParametro WHERE idParametro = ?", (idParametro,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+
+# ============================================================
+#           MANEJO DE SUBINDICES
+# ============================================================
+def insertarValor(idParametro: int, valor: float, subindice: float, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO curvaSubindice (idParametro, valor, subindice)
+            VALUES (?, ?, ?)
+        """, (idParametro, valor, subindice))
+
+def eliminarValor(idParametro: int, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            DELETE FROM curvaSubindice
+            WHERE idParametro = ?
+        """, (idParametro,))
+
+def traerSubindices(idParametro: int, db_path: Optional[str]=None):
+    with connection(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT valor, subindice
+            FROM curvaSubindice
+            WHERE idParametro = ?
+            ORDER BY valor
+        """, (idParametro,))
+        return [dict(row) for row in cur.fetchall()]
+    
+def cargar_curvas_desde_db(db_path=None):
+    parametros = traerParametros(db_path)
+
+    for p in parametros:
+        puntos = traerSubindices(p["id"], db_path)
+
+        if len(puntos) >= 2:
+            lista_puntos = [(pt["valor"], pt["subindice"]) for pt in puntos]
+
+            registrar_curva(
+                p["nombreParametro"],
+                lista_puntos
+            )
