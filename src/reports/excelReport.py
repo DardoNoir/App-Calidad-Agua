@@ -8,6 +8,7 @@ from openpyxl.drawing.image import Image as XLImage
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
+from src.utils.datetime import format_fecha_display
 
 import matplotlib.pyplot as plt
 
@@ -112,7 +113,7 @@ def generarExcelMediciones(
 
         ws_resumen.append([
             medicion["id"],
-            medicion["fechaMedicion"],
+            format_fecha_display(medicion["fechaMedicion"]),
             lugar["provincia"],
             lugar["ciudad"],
             lugar["cuerpoAgua"],
@@ -174,7 +175,7 @@ def generarExcelMediciones(
         )
 
         ws_datos.append(["Medición N°", medicion["id"]])
-        ws_datos.append(["Fecha", medicion["fechaMedicion"]])
+        ws_datos.append(["Fecha", format_fecha_display(medicion["fechaMedicion"])])
         ws_datos.append([
             "Lugar",
             f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpoAgua']}"

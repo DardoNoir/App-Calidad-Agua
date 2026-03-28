@@ -1,10 +1,9 @@
 from .db import connection
 from src.utils.security import hash_password
 from typing import Optional
-from datetime import datetime
 from src.analysis.evaluacion import ReferenciaParametro, EvaluarParametro
 from src.utils.security import verify_password, hash_password
-from src.utils.datetime import parse_fecha_str
+from src.utils.datetime import parse_fecha_str, ahora_str
 from src.analysis.calculoIca import calcular_ica, clasificar_ica, ajustar_ponderaciones
 from src.analysis.subindices import calcular_subindice_parametro, registrar_curva, _CURVAS
 
@@ -45,7 +44,6 @@ def actualizarUsuarioSinPassword(idUsuario, nombreUsuario, rol, db_path:Optional
         """
         ,(nombreUsuario, rol, idUsuario))
 
-
 def traerUsuarios(db_path: Optional[str]=None):
     with connection(db_path) as conn:
         cur = conn.cursor()
@@ -75,7 +73,7 @@ def autenticarUsuario(nombreUsuario: str, password: str, db_path=None):
         print("Contraseña incorrecta")
         return None
 
-    ahora = datetime.now()
+    ahora = ahora_str()
 
     with connection(db_path) as conn:
         cur = conn.cursor()
@@ -410,7 +408,7 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, zona=
             query += " AND l.zona = ?"
             params.append(zona)
 
-        query += " ORDER BY m.fechaMedicion DESC"
+        query += " ORDER BY m.fechaMedicion ASC"
 
         cur.execute(query, params)
 

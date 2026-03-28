@@ -2,7 +2,7 @@ from typing import List, Any, Dict
 from reportlab.platypus import Table, TableStyle, Paragraph, Flowable
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors  
-from datetime import datetime
+from src.utils.datetime import format_fecha_display
 
 def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable: 
     styles = getSampleStyleSheet() 
@@ -96,22 +96,10 @@ def crearTablaICA(ica: float | None, clasificacionIca: str | None) -> Flowable:
 from datetime import datetime
 
 def formatoFecha(fecha: Any) -> str:
-    if isinstance(fecha, datetime):
-        return fecha.strftime("%d/%m/%Y %H:%M")
-
-    if isinstance(fecha, str):
-        fecha = fecha.strip()
-
-        # Intento ISO primero
-        try:
-            fecha_dt = datetime.fromisoformat(fecha.split(".")[0])
-        except ValueError:
-            # Intento formato argentino
-            fecha_dt = datetime.strptime(fecha, "%d/%m/%Y %H:%M")
-
-        return fecha_dt.strftime("%d/%m/%Y %H:%M")
-
-    raise ValueError(f"Formato de fecha no soportado: {fecha}")
+    try:
+        return format_fecha_display(fecha)
+    except:
+        return "Fecha inválida"
 
 
 

@@ -154,7 +154,6 @@ class CargarMediciones(ctk.CTkFrame):
             return
 
         fechaCompletaStr = f"{fechastr} {hora}:{minuto}"
-        fecha = parse_fecha_str(fechaCompletaStr)
 
         valores = {}
         errores = []
@@ -213,7 +212,7 @@ class CargarMediciones(ctk.CTkFrame):
             self.prov.get(),
             self.ciudad.get(),
             self.cuerpoAgua.get(),
-            fecha,
+            fechaCompletaStr,
             session.currentUser.id,
             self.comments.get(),
             valores,

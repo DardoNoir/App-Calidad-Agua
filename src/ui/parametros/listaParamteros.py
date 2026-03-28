@@ -144,7 +144,10 @@ class ListaParametros(ctk.CTkFrame):
         ponderaciones = traerPonderacionesParametroActivas()
         
         suma_ponderaciones = sum(p["ponderacion"] for p in ponderaciones)
-        if round(suma_ponderaciones, 6) != 1:
+        if round(suma_ponderaciones,6) == 0:
+            self.on_back()
+            return
+        elif round(suma_ponderaciones, 6) != 1:
             messagebox.showerror(
                 "Error de Configuración",
                 f"La suma de las ponderaciones debe ser 1.\n\n"

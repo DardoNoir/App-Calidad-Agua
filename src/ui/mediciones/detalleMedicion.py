@@ -7,6 +7,7 @@ from src.charts.datasource import traerSeriesParametroPorLugar
 from src.charts.timeseries import graficarParametro
 from typing import cast
 from src.analysis.evaluacion import ReferenciaParametro
+from src.utils.datetime import format_fecha_display
 
 
 class DetalleMedicion(ctk.CTkFrame):
@@ -72,7 +73,7 @@ class DetalleMedicion(ctk.CTkFrame):
 
         ctk.CTkLabel(
             scroll,
-            text=f"Fecha Medición: {self.medicion['fechaMedicion']}"
+            text=f"Fecha Medición: {format_fecha_display(self.medicion['fechaMedicion'])}"
         ).pack(anchor="w", padx=60)
 
         ctk.CTkLabel(

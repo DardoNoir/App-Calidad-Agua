@@ -3,6 +3,7 @@ from src.data.repository import *
 from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
 from src.ui.usuarios.fromUsuarios import FormUsuario
+from src.utils.datetime import format_fecha_display
 
 class ListaUsuarios(ctk.CTkFrame):
     def __init__(self, master, on_back):
@@ -50,16 +51,11 @@ class ListaUsuarios(ctk.CTkFrame):
 
         for usuario in self.usuarios:
             ultima = usuario.get("ultimoInicio")
-
             if ultima:
                 try:
-                    if isinstance(ultima, str):
-                        ultima_dt = datetime.fromisoformat(ultima)
-                    else:
-                        ultima_dt = ultima
-
-                    ultima_formateada = ultima_dt.strftime("%d/%m/%Y %H:%M")
-                except:
+                    ultima_formateada = format_fecha_display(ultima)
+                except Exception as e:
+                    print("Error formateando fecha:", e)
                     ultima_formateada = "N/A"
             else:
                 ultima_formateada = "N/A"

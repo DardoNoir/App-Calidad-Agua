@@ -1,6 +1,7 @@
 from typing import Optional, Any, List
 from datetime import datetime
 from sqlite3 import Row
+from src.utils.datetime import FORMATO_DB
 
 from src.data.db import connection
 
@@ -45,7 +46,7 @@ def traerSeriesParametroPorLugar(
         filas = []
         for row in cursor.fetchall():
             filas.append({ # type: ignore
-                "fecha": datetime.strptime(row["fecha"], "%d/%m/%Y %H:%M"),
+                "fecha": datetime.strptime(row["fecha"], FORMATO_DB),
                 "valor": row["valor"]
             })
 
@@ -76,7 +77,7 @@ def traerSerieCompletaParametroLugar(
 
         return [
             {
-                "fecha": datetime.strptime(r["fecha"], "%d/%m/%Y %H:%M"),
+                "fecha": datetime.strptime(r["fecha"], FORMATO_DB),
                 "valor": r["valor"]
             }
             for r in cur.fetchall()

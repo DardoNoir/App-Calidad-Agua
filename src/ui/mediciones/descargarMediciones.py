@@ -5,6 +5,7 @@ from tkinter import messagebox, ttk
 from pathlib import Path
 from src.reports.pdfReport import generarReporte
 from src.reports.excelReport import generarExcelMediciones
+from src.utils.datetime import format_fecha_display
 
 
 
@@ -143,7 +144,7 @@ class DescargarMediciones(ctk.CTkFrame):
         for m in self.mediciones: 
             self.tree.insert("", "end", values=(
                 m["id"],
-                m["fechaMedicion"],
+                format_fecha_display(m["fechaMedicion"]),
                 m["tomadaPor"],
                 round(m["ica"], 2) if m["ica"] else "",
                 m["clasificacionICA"] or "",

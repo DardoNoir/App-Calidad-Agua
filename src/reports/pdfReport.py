@@ -5,6 +5,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Flowable, Image, PageBreak
 import matplotlib.pyplot as plt
 from src.analysis.evaluacion import ReferenciaParametro
+from src.utils.datetime import format_fecha_display
 
 
 
@@ -18,7 +19,6 @@ from src.data.repository import(
 
 from src.reports.tables import (
     crearTablaValoresMedidos,
-    formatoFecha,
     crearTablaICA,
     crearTablaDatosGenerales
 )
@@ -51,7 +51,7 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
         raise RuntimeError("Usuario no encontrado")
     
     # Formatear fecha
-    fecha = formatoFecha(medicion["fechaMedicion"])
+    fecha = format_fecha_display(medicion["fechaMedicion"])
     
     # Crear documento PDF
     doc = SimpleDocTemplate(str(rutaGuardar))

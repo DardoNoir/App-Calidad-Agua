@@ -3,6 +3,7 @@ from src.data.repository import *
 from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
 from src.ui.mediciones.detalleMedicion import DetalleMedicion
+from src.utils.datetime import format_fecha_display
 
 
 class HistorialMediciones(ctk.CTkFrame):
@@ -143,7 +144,7 @@ class HistorialMediciones(ctk.CTkFrame):
         for m in self.mediciones:
             self.tree.insert("", "end", values=(
                 m["id"],
-                m["fechaMedicion"],
+                format_fecha_display(m["fechaMedicion"]),
                 m["tomadaPor"],
                 round(m["ica"], 2) if m["ica"] else "",
                 m["clasificacionICA"] or "",

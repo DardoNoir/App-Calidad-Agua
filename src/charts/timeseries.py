@@ -37,8 +37,9 @@ def graficarParametro(
 
     # 👉 FORMATO DE FECHA
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y %H:%M"))
 
+    max_ok = min_ok = min_warn = max_warn = None
     if referencia is not None:
         max_ok = referencia.get("limiteMaxAceptable")
         min_ok = referencia.get("limiteMinAceptable")
@@ -64,7 +65,7 @@ def graficarParametro(
     ax.legend()
     ax.grid(True)
 
-    fig.autofmt_xdate()
+    fig.autofmt_xdate(rotation=30)
 
     return fig
 
