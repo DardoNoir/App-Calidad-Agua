@@ -86,14 +86,6 @@ CREATE TABLE IF NOT EXISTS ponderacionParametro(
     activo INTEGER DEFAULT 1,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );  
-
-CREATE TABLE IF NOT EXISTS curvaSubindice(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    idParametro INTEGER NOT NULL,
-    valor REAL NOT NULL,
-    subindice REAL NOT NULL,
-    FOREIGN KEY (idParametro) REFERENCES parametro(id)
-);
 """
 
 def run_migrations(db_path: str | None = None):
