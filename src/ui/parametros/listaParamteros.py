@@ -156,4 +156,3 @@ class ListaParametros(ctk.CTkFrame):
             return
 
         self.on_back()
-

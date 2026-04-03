@@ -165,4 +165,3 @@ class HistorialMediciones(ctk.CTkFrame):
             widget.destroy()
         DetalleMedicion(self.master, id_medicion, self.on_back)
 
-

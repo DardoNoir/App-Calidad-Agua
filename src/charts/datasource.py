@@ -82,4 +82,3 @@ def traerSerieCompletaParametroLugar(
             }
             for r in cur.fetchall()
         ]
-
