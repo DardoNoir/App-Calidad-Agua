@@ -90,6 +90,7 @@ class CargarMediciones(ctk.CTkFrame):
         crear_separador(self.scroll_container)
 
         crear_subtitulo(self.scroll_container, "Valores Medidos")
+        crear_aclaracion(self.scroll_container,"En caso de no medir algún parámetro, colocar un guion (-)")
         
         self.frame_parametros = ctk.CTkFrame(self.scroll_container, fg_color="transparent")
         self.frame_parametros.pack(pady=10)
@@ -103,7 +104,7 @@ class CargarMediciones(ctk.CTkFrame):
             
             lbl.grid(row=i, column=0, sticky="w", padx=(20,10), pady=4)
 
-            e = ctk.CTkEntry(self.frame_parametros, width=120)
+            e = ctk.CTkEntry(self.frame_parametros, width=120, placeholder_text="Número o -")
             e.grid(row=i, column=1, padx=(0,20), pady=4)
 
             self.inputs[p["id"]] = e
@@ -161,6 +162,9 @@ class CargarMediciones(ctk.CTkFrame):
         for pid, entry in self.inputs.items():
             valor_str = entry.get().strip()
 
+            if valor_str == "-":
+                continue
+                
             if not valor_str:
                 par = traerParametroPorId(pid)
                 if par is not None:
@@ -173,7 +177,7 @@ class CargarMediciones(ctk.CTkFrame):
                 par = traerParametroPorId(pid)
                 if par is not None:
                     errores.append(f"Valor inválido en parámetro: {par['nombreParametro']}\n"
-                                   f"Se esperaba un número.")
+                                   f"Se esperaba un número o guion (-) en caso de no ser medido")
                     continue
 
             referencia = traerValoresReferenciaPorParametro(pid)
@@ -201,6 +205,13 @@ class CargarMediciones(ctk.CTkFrame):
 
             valores[pid] = valor
 
+        if not valores:
+            messagebox.showerror(
+                "Error",
+                "Debe ingresar al menos un valor medido (no todos pueden ser '-')"
+            )
+            return
+        
         if errores:
             messagebox.showerror(
                 "Error en valores cargados",

@@ -15,6 +15,8 @@ class DescargarMediciones(ctk.CTkFrame):
         self.pack(fill="both", expand = True)
         self.on_back = on_back
 
+        self.selecciones = set()
+
         self.lugares = traerLugares()
 
         self.scroll_container = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -61,7 +63,7 @@ class DescargarMediciones(ctk.CTkFrame):
         tabla_frame = ctk.CTkFrame(self.scroll_container)
         tabla_frame.pack(fill = "both", expand = True, padx =10)
 
-        columnas = ("id", "fecha", "usuario", "ica", "clasificacion", "obs", "cargada")
+        columnas = ("id", "fecha", "usuario", "ica", "clasificacion", "obs", "cargada", "seleccion")
 
         self.tree = ttk.Treeview(tabla_frame, columns= columnas, show="headings", selectmode="extended")
 
@@ -72,6 +74,8 @@ class DescargarMediciones(ctk.CTkFrame):
         self.tree.heading("clasificacion", text="Clasificación")
         self.tree.heading("obs", text="Observaciones")
         self.tree.heading("cargada", text="Cargada en Sistema")
+        self.tree.heading("seleccion", text="✔")
+
 
         self.tree.column("id",anchor="e", width=50)
         self.tree.column("fecha", anchor="w", width=130)
@@ -80,8 +84,10 @@ class DescargarMediciones(ctk.CTkFrame):
         self.tree.column("clasificacion", anchor="w", width=120)
         self.tree.column("obs", anchor="w", width=200)
         self.tree.column("cargada", anchor="w", width=130)
+        self.tree.column("seleccion", anchor="center", width=40)  
 
         self.tree.pack(fill="both", expand=True)
+        self.tree.bind("<Button-1>", self.toggle_check)
 
         crear_separador(self.scroll_container)
 
@@ -149,17 +155,21 @@ class DescargarMediciones(ctk.CTkFrame):
                 round(m["ica"], 2) if m["ica"] else "",
                 m["clasificacionICA"] or "",
                 m["comentarios"] or "",
-                m["cargadaSistema"]
+                m["cargadaSistema"],
+                "☐"
             ))
     
     def descargar_pdf(self):
-        selected = self.tree.focus()
-        if not selected:
+        if not self.selecciones:
             messagebox.showerror("Error", "No se ha seleccionado ninguna medición")
             return
         
-        ruta = Path("reporte_prueba.pdf")
-        id_medicion = int(self.tree.item(selected)["values"][0])
+        if len(list(self.selecciones)) != 1:
+            messagebox.showerror("Error", "Solo seleccionar una medición por reporte")
+            return
+        id_medicion = list(self.selecciones)[0]
+        ruta = Path("Reporte de Medición.pdf")
+
 
         generarReporte(
             idMedicion=id_medicion,
@@ -169,12 +179,10 @@ class DescargarMediciones(ctk.CTkFrame):
         messagebox.showinfo("Éxito", f"Reporte generado en: {ruta}")
     
     def descargar_excel(self):
-        selected = self.tree.selection()
-
-        if not selected:
+        if not self.selecciones:
             messagebox.showerror("Error", "No se han seleccionado Mediciones")
 
-        ids = [int(self.tree.item(s)["values"][0]) for s in selected]
+        ids = list(self.selecciones)
 
         ruta = Path("mediciones_exportadas.xlsx")
 
@@ -184,3 +192,26 @@ class DescargarMediciones(ctk.CTkFrame):
         )
 
         messagebox.showinfo("Éxito", f"Excel generado en: {ruta}")
+
+    
+    def toggle_check(self, event):
+        item = self.tree.identify_row(event.y)
+        column = self.tree.identify_column(event.x)
+
+        if column != "#8":
+            return
+
+        if not item:
+            return
+
+        values = list(self.tree.item(item, "values"))
+        id_medicion = values[0]  
+
+        if id_medicion in self.selecciones:
+            self.selecciones.remove(id_medicion)
+            values[7] = "☐"  
+        else:
+            self.selecciones.add(id_medicion)
+            values[7] = "✔"
+
+        self.tree.item(item, values=values)

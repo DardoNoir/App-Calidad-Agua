@@ -12,6 +12,8 @@ class HistorialMediciones(ctk.CTkFrame):
         self.pack(fill="both", expand=True)
         self.on_back = on_back
 
+        self.selecciones = set()
+
         self.lugares = traerLugares()
         self.mediciones = []
 
@@ -63,7 +65,7 @@ class HistorialMediciones(ctk.CTkFrame):
         tabla_frame = ctk.CTkFrame(self.scroll_container)
         tabla_frame.pack(fill="both", expand=True, padx=10)
 
-        columnas = ("id", "fecha", "usuario", "ica", "clasificacion", "obs", "cargada")
+        columnas = ("id", "fecha", "usuario", "ica", "clasificacion", "obs", "cargada", "seleccion")
         self.tree = ttk.Treeview(tabla_frame, columns=columnas, show="headings")
 
         self.tree.heading("id", text="Nro")
@@ -73,6 +75,7 @@ class HistorialMediciones(ctk.CTkFrame):
         self.tree.heading("clasificacion", text="Clasificación")
         self.tree.heading("obs", text="Observaciones")
         self.tree.heading("cargada", text="Cargada en Sistema")
+        self.tree.heading("seleccion", text="✔")
 
         self.tree.column("id", anchor="e", width=50)
         self.tree.column("fecha", anchor="w", width=130)
@@ -81,8 +84,10 @@ class HistorialMediciones(ctk.CTkFrame):
         self.tree.column("clasificacion", anchor="w", width=120)
         self.tree.column("obs", anchor="w", width=200)
         self.tree.column("cargada", anchor="w", width=130)
+        self.tree.column("seleccion", anchor="center", width=40)
 
         self.tree.pack(fill="both", expand=True)
+        self.tree.bind("<Button-1>", self.toggle_check)
 
         crear_separador(self.scroll_container)
 
@@ -149,19 +154,53 @@ class HistorialMediciones(ctk.CTkFrame):
                 round(m["ica"], 2) if m["ica"] else "",
                 m["clasificacionICA"] or "",
                 m["comentarios"] or "",
-                m["cargadaSistema"]
+                m["cargadaSistema"],
+                "☐"
             ))
 
     def ver_detalle(self):
-        selected = self.tree.selection()
-        if not selected:
+        if not self.selecciones:
             messagebox.showwarning("Atención", "Seleccione una medición")
             return
 
-        item = self.tree.item(selected[0])
-        id_medicion = item["values"][0]  # SIEMPRE el ID (int)
+        id_medicion = list(self.selecciones)[0]  
 
         for widget in self.master.winfo_children():
             widget.destroy()
-        DetalleMedicion(self.master, id_medicion, self.on_back)
+        DetalleMedicion(self.master, id_medicion, self.volver_a_historial)
+
+    def volver_a_historial(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+        HistorialMediciones(self.master, self.on_back)
+
+    def toggle_check(self, event):
+        item = self.tree.identify_row(event.y)
+        column = self.tree.identify_column(event.x)
+
+        if column != "#8":
+            return
+
+        if not item:
+            return
+
+        values = list(self.tree.item(item, "values"))
+        id_medicion = values[0]
+
+        if id_medicion in self.selecciones:
+            self.selecciones.clear()
+            values[7] = "☐"
+            self.tree.item(item, values=values)
+            return
+
+        self.selecciones.clear()
+
+        for row in self.tree.get_children():
+            row_values = list(self.tree.item(row, "values"))
+            row_values[7] = "☐"
+            self.tree.item(row, values=row_values)
+
+        self.selecciones.add(id_medicion)
+        values[7] = "✔"
+        self.tree.item(item, values=values)
 

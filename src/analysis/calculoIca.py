@@ -7,16 +7,6 @@ class subindice(TypedDict):
 
 def ajustar_ponderaciones(ponderacionesBase: dict[int, float],
                           parametrosMedidos: List[int]) -> dict[int, float]:
-    """
-    Redistribuye las ponderaciones de los parámetros no medidos
-    entre los parámetros medidos, manteniendo suma total = 1.
-
-    ponderaciones_base: {idParametro: ponderacion}
-    parametros_medidos: [idParametro, ...]
-
-    Retorna:
-        dict {idParametro: ponderacion_ajustada}
-    """
     medidos = set(parametrosMedidos)
     todos = set(ponderacionesBase.keys())
     noMedidos = todos - medidos
@@ -37,30 +27,12 @@ def ajustar_ponderaciones(ponderacionesBase: dict[int, float],
 
 
 def calcular_ica(subindices: List[subindice]) -> float:
-    """
-    Calcula el Índice de Calidad del Agua (ICA) basado en los subíndices y ponderaciones proporcionadas.
-
-    Parámetros:
-    subindices (List[subindice]): Lista de diccionarios que contienen 'idParametro', 'subindice' y 'ponderacion'.
-
-    Retorna:
-    float: El valor calculado del ICA.
-    """
     ica = 0.0
     for item in subindices:
         ica += item['subindice'] * item['ponderacion']
     return round(ica, 2)
 
 def clasificar_ica(ica: float) -> str:
-    """
-    Clasifica el Índice de Calidad del Agua (ICA) en categorías cualitativas.
-
-    Parámetros:
-    ica (float): El valor del ICA a clasificar.
-
-    Retorna:
-    str: La clasificación cualitativa del ICA.
-    """
     if ica >= 91:
         return "Excelente"
     elif ica >= 71:

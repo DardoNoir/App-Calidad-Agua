@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from src.ui.login import LoginWindow
-from src.ui.Menus import *
+from src.ui.Menus import MenuPrincipal, MenuMediciones
 from src.ui.parametros.listaParamteros import ListaParametros
 from src.ui.usuarios.listaUsuarios import ListaUsuarios
 
@@ -17,7 +17,7 @@ class App(ctk.CTk):
 
     def clear(self):
         for widget in self.winfo_children():
-           widget.destroy()
+            widget.destroy()
            
     def show_login(self):
         self.clear()
@@ -35,20 +35,16 @@ class App(ctk.CTk):
     
     def show_mediciones(self):
         self.clear()
-        MenuMediciones(self,
-                       on_back=self.show_dashboard,
-                       on_logout=self.show_login)
+        MenuMediciones(
+            self,
+            on_back_principal=self.show_dashboard,
+            on_logout=self.show_login
+        )
         
     def show_usuarios(self):
         self.clear()
-        ListaUsuarios(self,
-                     on_back=self.show_dashboard)
+        ListaUsuarios(self, on_back=self.show_dashboard)
         
     def show_configuraciones(self):
         self.clear()
-        ListaParametros(
-            self,
-            on_back=self.show_dashboard
-    )
-        
-
+        ListaParametros(self, on_back=self.show_dashboard)
