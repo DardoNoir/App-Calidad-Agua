@@ -7,8 +7,8 @@ from pathlib import Path
 def get_db_path():
     if getattr(sys, 'frozen', False):
         # Si la aplicación está empaquetada (por ejemplo, con PyInstaller)
-        return Path(sys.executable).parent / "app.db"
-    return Path(__file__).resolve().parents[1] / "app.db"
+        return Path(sys.executable).parent 
+    return Path(__file__).resolve().parents[1] 
 # Ruta absoluta al archivo de base de datos SQLite (app.db en la raíz del proyecto)
 DB_PATH = get_db_path() / "app.db"
 

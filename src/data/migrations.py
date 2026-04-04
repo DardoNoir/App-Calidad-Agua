@@ -1,8 +1,13 @@
 import sqlite3
 from pathlib import Path
+import sys
 
-# Ruta del archivo de base de datos (igual que en db.py)
-DB_PATH = Path(__file__).resolve().parents[1] / "app.db"
+def get_db_path():
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).parent
+    return Path(__file__).resolve().parents[1]
+
+DB_PATH = get_db_path() / "app.db"
 
 # Script SQL que crea todas las tablas necesarias para el sistema.
 # Cada CREATE TABLE usa IF NOT EXISTS para evitar errores si la tabla ya existe.
@@ -97,14 +102,8 @@ CREATE TABLE IF NOT EXISTS curvaSubindice(
 """
 
 def run_migrations(db_path: str | None = None):
-    """
-    Ejecuta el script DDL para crear las tablas.
-
-    ✔ Abre la base
-    ✔ Crea las tablas si no existen
-    ✔ Cierra la base
-    """
     path = db_path or str(DB_PATH)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
     cur = conn.cursor()
     cur.executescript(DDL)  # Ejecuta todo el SQL de una vez
