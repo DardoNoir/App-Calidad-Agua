@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS usuario(
     password TEXT NOT NULL,
     rol TEXT NOT NULL CHECK (rol IN ('Administrador','Usuario')),
     ultimoInicio DATETIME
+    idMunicipio INTEGER,
+    FOREIGN KEY (idMunicipio) REFERENCES municipio(id)
 );
 
 CREATE TABLE IF NOT EXISTS lugar(
@@ -58,8 +60,10 @@ CREATE TABLE IF NOT EXISTS medicion(
     ica REAL,
     clasificacionICA TEXT,
     cargadaSistema DATETIME DEFAULT CURRENT_TIMESTAMP,
+    idMunicipio INTEGER,
     FOREIGN KEY (idLugar) REFERENCES lugar(id),
     FOREIGN KEY (medidaTomadaPor) REFERENCES usuario(id)
+    FOREIGN KEY (idMunicipio) REFERENCES municipio(id)
 );
 
 CREATE TABLE IF NOT EXISTS valorMedida(
@@ -98,6 +102,11 @@ CREATE TABLE IF NOT EXISTS curvaSubindice(
     valor REAL NOT NULL,
     subindice REAL NOT NULL,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
+);
+
+CREATE TABLE municipio (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT UNIQUE NOT NULL
 );
 """
 

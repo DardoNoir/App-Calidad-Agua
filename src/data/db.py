@@ -1,31 +1,15 @@
-import sqlite3
-import sys
-from contextlib import contextmanager
-from pathlib import Path
+import psycopg2
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-def get_db_path():
-    if getattr(sys, 'frozen', False):
-        # Si la aplicación está empaquetada (por ejemplo, con PyInstaller)
-        return Path(sys.executable).parent 
-    return Path(__file__).resolve().parents[1] 
-# Ruta absoluta al archivo de base de datos SQLite (app.db en la raíz del proyecto)
-DB_PATH = get_db_path() / "app.db"
-
-def get_connection(path: str | None = None):
-    path = path or str(DB_PATH)
-    conn = sqlite3.connect(path)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-@contextmanager
-def connection(path : str | None = None):
-    conn = get_connection(path)
-    try:
-        yield conn
-        conn.commit()  # Guarda cambios si todo salió bien
-    except:
-        conn.rollback()  # Revierte cambios en caso de error
-        raise
-    finally:
-        conn.close()  # Cierra conexión siempre
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        port=os.getenv("DB_PORT"),
+        sslmode=os.getenv("DB_SSLMODE")
+    )
