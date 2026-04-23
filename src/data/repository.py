@@ -23,7 +23,7 @@ def crearUsuario(nombreUsuario: str, password: str, rol: str):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-                    INSERT INTO usuario (nombreUsuario, password, rol) 
+                    INSERT INTO usuario (nombre_usuario, password, rol) 
                     VALUES (%s, %s, %s)
                     RETURNING id""",
             (nombreUsuario, pw_hash, rol)
@@ -38,7 +38,7 @@ def actualizarUsuario(idUsuario, nombreUsuario, password, rol):
         cur.execute(
             """
             UPDATE usuario
-            SET nombreUsuario = %s, rol = %s, password = %s
+            SET nombre_usuario = %s, rol = %s, password = %s
             WHERE id = %s
         """
         ,(nombreUsuario, rol, pw_hash, idUsuario))
@@ -49,7 +49,7 @@ def actualizarUsuarioSinPassword(idUsuario, nombreUsuario, rol):
         cur.execute(
             """
             UPDATE usuario
-            SET nombreUsuario = %s, rol = %s
+            SET nombre_usuario = %s, rol = %s
             WHERE id = %s
         """
         ,(nombreUsuario, rol, idUsuario))
@@ -63,7 +63,7 @@ def traerUsuarios():
 def traerUsuarioPorNombre(nombreUsuario: str):
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM usuario WHERE nombreUsuario = %s", (nombreUsuario,))
+        cur.execute("SELECT * FROM usuario WHERE nombre_usuario = %s", (nombreUsuario,))
         return cur.fetchone() 
 
 def traerUsuarioPorId(id: int):
@@ -86,7 +86,7 @@ def autenticarUsuario(nombreUsuario: str, password: str):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute(
-            "UPDATE usuario SET ultimoInicio = %s WHERE id = %s",
+            "UPDATE usuario SET ultimo_inicio = %s WHERE id = %s",
             (ahora, usuario["id"])
         )
 
@@ -106,7 +106,7 @@ def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, zona: str):
         # Verificar existencia
         cur.execute("""
             SELECT id FROM lugar
-            WHERE provincia = %s AND ciudad = %s AND cuerpoAgua = %s AND zona = %s
+            WHERE provincia = %s AND ciudad = %s AND cuerpo_agua = %s AND zona = %s
         """, (provincia, ciudad, cuerpoAgua, zona))
 
         row = cur.fetchone()
@@ -115,7 +115,7 @@ def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, zona: str):
         
         # Si no existe, insertar
         cur.execute("""
-            INSERT INTO lugar (provincia, ciudad, cuerpoAgua, zona)
+            INSERT INTO lugar (provincia, ciudad, cuerpo_agua, zona)
             VALUES (%s, %s, %s, %s)
             RETURNING id
         """, (provincia, ciudad, cuerpoAgua, zona))
@@ -127,7 +127,7 @@ def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, zona: str):
 def traerLugares():
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM lugar ORDER BY provincia, ciudad, cuerpoAgua")
+        cur.execute("SELECT * FROM lugar ORDER BY provincia, ciudad, cuerpo_agua")
         return cur.fetchall()
 
 def traerLugarPorId(idLugar: int):
@@ -144,7 +144,7 @@ def insertarParametro(codigo: str, nombreParametro: str, unidad: str):
         cur = getCursor(conn)
         cur.execute("""
             SELECT id FROM parametro
-            WHERE codigo = %s AND nombreParametro = %s AND unidad = %s
+            WHERE codigo = %s AND nombre_parametro = %s AND unidad = %s
         """, (codigo, nombreParametro, unidad))
 
         row = cur.fetchone()
@@ -152,7 +152,7 @@ def insertarParametro(codigo: str, nombreParametro: str, unidad: str):
             return int(row["id"])  
 
         cur.execute("""
-            INSERT INTO parametro (codigo, nombreParametro, unidad)
+            INSERT INTO parametro (codigo, nombre_parametro, unidad)
             VALUES (%s, %s, %s)
             RETURNING id
         """, (codigo, nombreParametro, unidad))
@@ -178,7 +178,7 @@ def traerParametroPorId(idParametro: int):
 def traerParametroPorNombre(nombreParametro: str):
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM parametro WHERE nombreParametro = %s", (nombreParametro,))
+        cur.execute("SELECT * FROM parametro WHERE nombre_parametro = %s", (nombreParametro,))
         return cur.fetchone()
 
 def existeParametro(nombreParametro: str):
@@ -189,7 +189,7 @@ def actualizarParametro(idParametro: int, codigo: str, nombreParametro: str, uni
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            UPDATE parametro SET codigo = %s, nombreParametro = %s, unidad = %
+            UPDATE parametro SET codigo = %s, nombre_parametro = %s, unidad = %s
             WHERE id = %s
         """, (codigo, nombreParametro, unidad, idParametro))
 
@@ -200,7 +200,7 @@ def insertarMedicion(idLugar: int, fechaMedicion: str, medidaTomadaPor: int, com
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            INSERT INTO medicion (idLugar, fechaMedicion, medidaTomadaPor, comentarios)
+            INSERT INTO medicion (id_lugar, fecha_medicion, medida_tomada_por, comentarios)
             VALUES (%s, %s, %s, %s)
             RETURNING id
         """, (idLugar, fechaMedicion, medidaTomadaPor, comentarios))
@@ -220,7 +220,7 @@ def traerMedicionesPorLugar(idLugar: int):
         cur.execute("""
             SELECT *
             FROM medicion
-            WHERE idLugar = %s
+            WHERE id_lugar = %s
         """, (idLugar,))
         return cur.fetchall()
 
@@ -230,7 +230,7 @@ def traerMedicionesPorUsuario(idUsuario: int):
         cur.execute("""
             SELECT *
             FROM medicion
-            WHERE medidaTomadaPor = %s
+            WHERE medida_tomada_por = %s
         """, (idUsuario,))
         return cur.fetchall()
     
@@ -240,7 +240,7 @@ def traerMedicionesPorFecha(fechaMedicion: str):
         cur.execute("""
             SELECT *
             FROM medicion
-            WHERE fechaMedicion = %s
+            WHERE fecha_medicion = %s
         """, (fechaMedicion,))
         return cur.fetchall()
 
@@ -248,9 +248,9 @@ def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: str):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            SELECT id, fechaMedicion, comentarios
+            SELECT id, fecha_medicion, comentarios
             FROM medicion
-            WHERE idLugar = %s AND fechaMedicion = %s
+            WHERE id_lugar = %s AND fecha_medicion = %s
         """, (idLugar, fechaMedicion))
         return cur.fetchall()
 
@@ -265,7 +265,7 @@ def actualizarICAMedicion(idMedicion: int, ica: float, clasificacionICA: str):
         cur = getCursor(conn)
         cur.execute("""
             UPDATE medicion
-            SET ica = %s, clasificacionICA = %s
+            SET ica = %s, clasificacion_ica = %s
             WHERE id = %s
         """, (ica, clasificacionICA, idMedicion))
 
@@ -302,7 +302,7 @@ def guardarMedicionCompleta(
 
         insertarValorMedido(
             idMedicion,
-            [{"idParametro": (idParametro)}],
+            [{"id_parametro": (idParametro)}],
             valor,
             estado,
             desviacion)
@@ -310,7 +310,7 @@ def guardarMedicionCompleta(
         try:
             par = traerParametroPorId(idParametro)
             if par:
-                sub = calcular_subindice_parametro(par["nombreParametro"], valor)
+                sub = calcular_subindice_parametro(par["nombre_parametro"], valor)
             else:
                 continue
 
@@ -318,7 +318,7 @@ def guardarMedicionCompleta(
                 continue
 
             subindices.append({
-                "idParametro": idParametro,
+                "id_parametro": idParametro,
                 "subindice": sub
             })
 
@@ -328,16 +328,16 @@ def guardarMedicionCompleta(
             continue
 
     ponderacionesDb = traerPonderacionesParametroActivas()
-    ponderacionBase = {p["idParametro"]:p["ponderacion"] for p in ponderacionesDb}
+    ponderacionBase = {p["id_parametro"]:p["ponderacion"] for p in ponderacionesDb}
     
     ponderaciones_ajustadas = ajustar_ponderaciones(ponderacionBase, parametrosMedidos)
 
     listaICA = []
     for item in subindices: 
         listaICA.append({
-            "idParametro": item["idParametro"],
+            "id_parametro": item["id_parametro"],
             "subindice": item["subindice"],
-            "ponderacion": ponderaciones_ajustadas[item["idParametro"]]
+            "ponderacion": ponderaciones_ajustadas[item["id_parametro"]]
         })
 
     ica = calcular_ica(listaICA)
@@ -353,20 +353,20 @@ def traerMedicionesConDetalleLugar():
         cur.execute("""
             SELECT 
                 m.id,
-                m.fechaMedicion,
-                u.nombreUsuario AS tomadaPor,
+                m.fecha_medicion,
+                u.nombre_usuario AS tomada_por,
                 m.ica,
-                m.clasificacionICA,
+                m.clasificacion_ica,
                 m.comentarios,
-                m.cargadaSistema,
+                m.cargada_sistema,
                 l.provincia,
                 l.ciudad,
-                l.cuerpoAgua,
+                l.cuerpo_agua,
                 l.id as idLugar
             FROM medicion m
-            JOIN lugar l ON m.idLugar = l.id
-            JOIN usuario u ON m.medidaTomadaPor = u.id
-            ORDER BY m.fechaMedicion DESC
+            JOIN lugar l ON m.id_lugar = l.id
+            JOIN usuario u ON m.medida_tomada_por = u.id
+            ORDER BY m.fecha_medicion DESC
         """)
         return cur.fetchall()
 
@@ -376,19 +376,19 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, zona=
         query = """
             SELECT 
                 m.id,
-                m.fechaMedicion,
-                u.nombreUsuario AS tomadaPor,
+                m.fecha_medicion,
+                u.nombre_usuario AS tomada_por,
                 m.ica,
-                m.clasificacionICA,
+                m.clasificacion_ica,
                 m.comentarios,
-                m.cargadaSistema,
+                m.cargada_sistema,
                 l.provincia,
                 l.ciudad,
-                l.cuerpoAgua,
+                l.cuerpo_agua,
                 l.zona
             FROM medicion m
-            JOIN lugar l ON m.idLugar = l.id
-            JOIN usuario u ON m.medidaTomadaPor = u.id
+            JOIN lugar l ON m.id_lugar = l.id
+            JOIN usuario u ON m.medida_tomada_por = u.id
             WHERE 1=1
         """
         params = []
@@ -400,13 +400,13 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, zona=
             query += " AND l.ciudad = %s"
             params.append(ciudad)
         if cuerpoAgua:
-            query += " AND l.cuerpoAgua = %s"
+            query += " AND l.cuerpo_agua = %s"
             params.append(cuerpoAgua)
         if zona:
             query += " AND l.zona = %s"
             params.append(zona)
 
-        query += " ORDER BY m.fechaMedicion ASC"
+        query += " ORDER BY m.fecha_medicion ASC"
 
         cur.execute(query, params)
 
@@ -430,10 +430,10 @@ def insertarValorMedido(
 
         for p in parametros:
             cur.execute("""
-                INSERT INTO valorMedida (idMedicion, idParametro, valor, estado, desviacion)
+                INSERT INTO valor_medida (id_medicion, id_parametro, valor, estado, desviacion)
                 VALUES (%s, %s, %s, %s, %s),
                 RETURNING id
-                """, (idMedicion, p["idParametro"], valor, estado, desviacion))
+                """, (idMedicion, p["id_parametro"], valor, estado, desviacion))
             
             id_insertado = cur.fetchone()
             if id_insertado:
@@ -445,11 +445,11 @@ def traerValoresMedidosDeMedicion(idMedicion: int):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            SELECT vm.idParametro, p.nombreParametro, p.unidad,
+            SELECT vm.id_parametro, p.nombre_parametro, p.unidad,
                    vm.valor, vm.estado, vm.desviacion
-            FROM valorMedida vm
-            JOIN parametro p ON vm.idParametro = p.id
-            WHERE vm.idMedicion = %s
+            FROM valor_medida vm
+            JOIN parametro p ON vm.id_parametro = p.id
+            WHERE vm.id_medicion = %s
         """, (idMedicion,))
         return cur.fetchall()
 
@@ -457,11 +457,11 @@ def traerTodosLosValoresMedidos():
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            SELECT vm.idMedicion, vm.idParametro,
-                   p.nombreParametro, p.unidad,
+            SELECT vm.id_medicion, vm.id_parametro,
+                   p.nombre_parametro, p.unidad,
                    vm.valor, vm.estado, vm.desviacion
-            FROM valorMedida vm
-            JOIN parametro p ON vm.idParametro = p.id
+            FROM valor_medida vm
+            JOIN parametro p ON vm.id_parametro = p.id
         """)
         return cur.fetchall()
 
@@ -473,15 +473,15 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
                               normativa: str, rangoPosibleMin: float, rangoPosibleMax: float):
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT id FROM valorReferencia WHERE idParametro = %s", (idParametro,))
+        cur.execute("SELECT id FROM valor_referencia WHERE id_parametro = %s", (idParametro,))
         
         row = cur.fetchone()
         if row:
             return int(row["id"])
 
         cur.execute("""
-            INSERT INTO valorReferencia (idParametro, limiteMaxAceptable, limiteMaxWarning,
-                     limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax)
+            INSERT INTO valor_referencia (id_parametro, limite_max_aceptable, limite_max_warning,
+                     limite_min_aceptable, limite_min_warning, normativa, rango_posible_min, rango_posible_max)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (idParametro, limiteMaxAceptable, limiteMaxWarning, 
               limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax))
@@ -497,21 +497,21 @@ def traerValoresReferenciaPorParametro(idParametro: int):
         cur = getCursor(conn)
         cur.execute("""
             SELECT *
-            FROM valorReferencia
-            WHERE idParametro = %s
+            FROM valor_referencia
+            WHERE id_parametro = %s
         """, (idParametro,))
         return cur.fetchone()
     
 def traerTodosLosValoresReferencia():
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM valorReferencia")
+        cur.execute("SELECT * FROM valor_referencia")
         return cur.fetchall()
 
 def traerValorReferenciaPorId(idValorReferencia: int):
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM valorReferencia WHERE id = %s", (idValorReferencia,))
+        cur.execute("SELECT * FROM valor_referencia WHERE id = %s", (idValorReferencia,))
         return cur.fetchone()
 
 def valoresReferenciaCargados(idParametro: int):
@@ -524,9 +524,9 @@ def actualizarValoresReferencia(idParametro: int, limiteMaxAceptable: float, lim
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            UPDATE valorReferencia SET limiteMaxAceptable = %s, limiteMaxWarning = %s,
-                     limiteMinAceptable = %s, limiteMinWarning = %s, normativa = %s, rangoPosibleMin = %s, rangoPosibleMax = %s  
-                     WHERE idParametro = %s
+            UPDATE valor_referencia SET limite_max_aceptable = %s, limite_max_warning = %s,
+                     limite_min_aceptable = %s, limite_min_warning = %s, normativa = %s, rango_posible_min = %s, rango_posible_max = %s  
+                     WHERE id_parametro = %s
         """, (limiteMaxAceptable, limiteMaxWarning, limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax, idParametro))
 
 # ============================================================
@@ -536,7 +536,7 @@ def insertarPonderacionParametro(idParametro: int, ponderacion: float):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            INSERT INTO ponderacionParametro (idParametro, ponderacion)
+            INSERT INTO ponderacion_parametro (id_parametro, ponderacion)
             VALUES (%s, %s)
             RETURNING id
         """, (idParametro, ponderacion))
@@ -552,7 +552,7 @@ def actualizarPonderacion(idParametro: int, ponderacion: float):
         cur = getCursor(conn)
         cur.execute(
             """
-            UPDATE ponderacionParametro SET ponderacion = %s WHERE id = %s
+            UPDATE ponderacion_parametro SET ponderacion = %s WHERE id = %s
         """,
         (ponderacion, idParametro))
 
@@ -561,7 +561,7 @@ def traerPonderacionesParametroActivas():
         cur = getCursor(conn)
         cur.execute("""
             SELECT *
-            FROM ponderacionParametro
+            FROM ponderacion_parametro
             WHERE activo = 1
         """)
         return cur.fetchall()
@@ -569,7 +569,7 @@ def traerPonderacionesParametroActivas():
 def traerPonderacionParametro(idParametro: int):
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM ponderacionParametro WHERE idParametro = %s", (idParametro,))
+        cur.execute("SELECT * FROM ponderacion_parametro WHERE id_parametro = %s", (idParametro,))
         return cur.fetchone()
 
 
@@ -580,7 +580,7 @@ def insertarValor(idParametro: int, valor: float, subindice: float):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            INSERT INTO curvaSubindice (idParametro, valor, subindice)
+            INSERT INTO curva_subindice (id_parametro, valor, subindice)
             VALUES (%s, %s, %s)
         """, (idParametro, valor, subindice))
 
@@ -588,8 +588,8 @@ def eliminarValor(idParametro: int):
     with connection() as conn:
         cur = getCursor(conn)
         cur.execute("""
-            DELETE FROM curvaSubindice
-            WHERE idParametro = %s
+            DELETE FROM curva_subindice
+            WHERE id_parametro = %s
         """, (idParametro,))
 
 def traerSubindices(idParametro: int):
@@ -597,8 +597,8 @@ def traerSubindices(idParametro: int):
         cur = getCursor(conn)
         cur.execute("""
             SELECT valor, subindice
-            FROM curvaSubindice
-            WHERE idParametro = %s
+            FROM curva_subindice
+            WHERE id_parametro = %s
             ORDER BY valor
         """, (idParametro,))
         return cur.fetchall()
@@ -611,8 +611,8 @@ def cargar_curvas_desde_db():
             cur = getCursor(conn)
             cur.execute("""
                 SELECT valor, subindice
-                FROM curvaSubindice
-                WHERE idParametro = %s
+                FROM curva_subindice
+                WHERE id_parametro = %s
                 ORDER BY valor
             """, (p["id"],))
             puntos = cur.fetchall()

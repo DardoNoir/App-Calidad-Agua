@@ -33,7 +33,7 @@ class HistorialMediciones(ctk.CTkFrame):
 
         provincias = sorted(set(l["provincia"] for l in self.lugares))
         ciudades = sorted(set(l["ciudad"] for l in self.lugares))
-        cuerpoAgua = sorted(set(l["cuerpoAgua"] for l in self.lugares))
+        cuerpoAgua = sorted(set(l["cuerpo_agua"] for l in self.lugares))
         zonas = sorted(set(l["zona"] for l in self.lugares))
 
         self.combo_prov = ctk.CTkComboBox(filtro_frame, values=["-"] + provincias, width=150)
@@ -149,12 +149,12 @@ class HistorialMediciones(ctk.CTkFrame):
         for m in self.mediciones:
             self.tree.insert("", "end", values=(
                 m["id"],
-                format_fecha_display(m["fechaMedicion"]),
-                m["tomadaPor"],
+                format_fecha_display(m["fecha_medicion"]),
+                m["tomada_por"],
                 round(m["ica"], 2) if m["ica"] else "",
-                m["clasificacionICA"] or "",
+                m["clasificacion_ica"] or "",
                 m["comentarios"] or "",
-                m["cargadaSistema"],
+                m["cargada_en_sistema"],
                 "☐"
             ))
 

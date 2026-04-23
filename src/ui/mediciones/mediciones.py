@@ -19,7 +19,7 @@ class CargarMediciones(ctk.CTkFrame):
 
         self.provincias = sorted(set(l["provincia"] for l in self.lugares if l["provincia"]))
         self.ciudades = sorted(set(l["ciudad"] for l in self.lugares if l["ciudad"]))
-        self.cuerpos = sorted(set(l["cuerpoAgua"] for l in self.lugares if l["cuerpoAgua"]))
+        self.cuerpos = sorted(set(l["cuerpo_agua"] for l in self.lugares if l["cuerpo_agua"]))
         self.zonas = sorted(set(l["zona"] for l in self.lugares if l["zona"]))
         
         self.inputs = {}
@@ -99,7 +99,7 @@ class CargarMediciones(ctk.CTkFrame):
 
             lbl = ctk.CTkLabel(
                 self.frame_parametros,
-                text=f'{p["nombreParametro"]} ({p["unidad"]})',
+                text=f'{p["nombre_parametro"]} ({p["unidad"]})',
                 anchor="w")
             
             lbl.grid(row=i, column=0, sticky="w", padx=(20,10), pady=4)
@@ -168,7 +168,7 @@ class CargarMediciones(ctk.CTkFrame):
             if not valor_str:
                 par = traerParametroPorId(pid)
                 if par is not None:
-                    errores.append(f"Valor vacío en parámetro: {par['nombreParametro']}")
+                    errores.append(f"Valor vacío en parámetro: {par['nombre_parametro']}")
                     continue
 
             try:
@@ -176,21 +176,21 @@ class CargarMediciones(ctk.CTkFrame):
             except ValueError:
                 par = traerParametroPorId(pid)
                 if par is not None:
-                    errores.append(f"Valor inválido en parámetro: {par['nombreParametro']}\n"
+                    errores.append(f"Valor inválido en parámetro: {par['nombre_parametro']}\n"
                                    f"Se esperaba un número o guion (-) en caso de no ser medido")
                     continue
 
             referencia = traerValoresReferenciaPorParametro(pid)
 
             if referencia:
-                rango_min = referencia.get("rangoPosibleMin")
-                rango_max = referencia.get("rangoPosibleMax")
+                rango_min = referencia.get("rango_posible_min")
+                rango_max = referencia.get("rango_posible_max")
 
                 if rango_min is not None and valor < rango_min:
                     parametro = traerParametroPorId(pid)
                     if parametro is not None:
                         errores.append(
-                            f"{parametro['nombreParametro']} fuera de rango.\n"
+                            f"{parametro['nombre_parametro']} fuera de rango.\n"
                             f"Rango posible: {rango_min} - {rango_max}"
                         )
 
@@ -199,7 +199,7 @@ class CargarMediciones(ctk.CTkFrame):
                     parametro = traerParametroPorId(pid)
                     if parametro is not None:
                         errores.append(
-                            f"{parametro['nombreParametro']} fuera de rango.\n"
+                            f"{parametro['nombre_parametro']} fuera de rango.\n"
                             f"Rango posible: {rango_min} - {rango_max}"
                         )
 

@@ -50,7 +50,7 @@ class ListaUsuarios(ctk.CTkFrame):
         self.tree.pack(fill="both", expand=True, padx=5, pady=5)
 
         for usuario in self.usuarios:
-            ultima = usuario.get("ultimoInicio")
+            ultima = usuario.get("ultimo_inicio")
             if ultima:
                 try:
                     ultima_formateada = format_fecha_display(ultima)
@@ -62,7 +62,7 @@ class ListaUsuarios(ctk.CTkFrame):
 
             self.tree.insert("", "end", values=(
                 usuario["id"],
-                usuario["nombreUsuario"],
+                usuario["nombre_usuario"],
                 usuario["rol"],
                 ultima_formateada
             ))

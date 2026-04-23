@@ -25,13 +25,13 @@ class DetalleMedicion(ctk.CTkFrame):
             self.on_back()
             return
 
-        self.lugar = traerLugarPorId(self.medicion["idLugar"])
+        self.lugar = traerLugarPorId(self.medicion["id_lugar"])
         if self.lugar is None:
             messagebox.showerror("Error", "Lugar inexistente")
             self.on_back()
             return
 
-        self.usuario = traerUsuarioPorId(self.medicion["medidaTomadaPor"])
+        self.usuario = traerUsuarioPorId(self.medicion["medida_tomada_por"])
         if self.usuario is None:
             messagebox.showerror("Error", "Usuario inexistente")
             self.on_back()
@@ -61,7 +61,7 @@ class DetalleMedicion(ctk.CTkFrame):
 
         ctk.CTkLabel(scroll, text=f"Provincia: {self.lugar['provincia']}").pack(anchor="w", padx=60)
         ctk.CTkLabel(scroll, text=f"Ciudad: {self.lugar['ciudad']}").pack(anchor="w", padx=60)
-        ctk.CTkLabel(scroll, text=f"Cuerpo de Agua: {self.lugar['cuerpoAgua']}").pack(anchor="w", padx=60)
+        ctk.CTkLabel(scroll, text=f"Cuerpo de Agua: {self.lugar['cuerpo_agua']}").pack(anchor="w", padx=60)
         ctk.CTkLabel(scroll, text=f"Zona: {self.lugar['zona']}").pack(anchor="w", padx=60)
         
         crear_separador(scroll)
@@ -73,12 +73,12 @@ class DetalleMedicion(ctk.CTkFrame):
 
         ctk.CTkLabel(
             scroll,
-            text=f"Fecha Medición: {format_fecha_display(self.medicion['fechaMedicion'])}"
+            text=f"Fecha Medición: {format_fecha_display(self.medicion['fecha_medicion'])}"
         ).pack(anchor="w", padx=60)
 
         ctk.CTkLabel(
             scroll,
-            text=f"Tomada por: {self.usuario['nombreUsuario']}"
+            text=f"Tomada por: {self.usuario['nombre_usuario']}"
         ).pack(anchor="w", padx=60)
 
         ctk.CTkLabel(
@@ -88,7 +88,7 @@ class DetalleMedicion(ctk.CTkFrame):
 
         ctk.CTkLabel(
             scroll,
-            text=f"Clasificación ICA: {self.medicion['clasificacionICA'] or '-'}"
+            text=f"Clasificación ICA: {self.medicion['clasificacion_ica'] or '-'}"
         ).pack(anchor="w", padx=60)
 
         ctk.CTkLabel(
@@ -115,7 +115,7 @@ class DetalleMedicion(ctk.CTkFrame):
             ).grid(row=0, column=col, padx=10, pady=5)
 
         for i, v in enumerate(self.valores, start=1):
-            ctk.CTkLabel(frame_tabla, text=v["nombreParametro"]).grid(row=i, column=0, padx=10)
+            ctk.CTkLabel(frame_tabla, text=v["nombre_parametro"]).grid(row=i, column=0, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["unidad"]).grid(row=i, column=1, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["valor"]).grid(row=i, column=2, padx=10)
             ctk.CTkLabel(frame_tabla, text=v["estado"]).grid(row=i, column=3, padx=10)
@@ -125,7 +125,7 @@ class DetalleMedicion(ctk.CTkFrame):
                 frame_tabla,
                 text="📈",
                 width=40,
-                command=lambda p=v["idParametro"]: self.mostrar_grafico(p)
+                command=lambda p=v["id_parametro"]: self.mostrar_grafico(p)
             ).grid(row=i, column=5, padx=5)
 
         # ======================
@@ -154,7 +154,7 @@ class DetalleMedicion(ctk.CTkFrame):
                 return
 
             serie = traerSeriesParametroPorLugar(
-                idLugar=self.medicion["idLugar"],
+                idLugar=self.medicion["id_lugar"],
                 idParametro=id_parametro
             )
 
@@ -175,10 +175,10 @@ class DetalleMedicion(ctk.CTkFrame):
             graficarParametro(
                 fechas=[s["fecha"] for s in serie],
                 valores=[s["valor"] for s in serie],
-                nombreParametro=parametro["nombreParametro"],
+                nombreParametro=parametro["nombre_parametro"],
                 unidad=parametro["unidad"],
                 referencia=ref,
-                titulo=f"– {self.lugar['cuerpoAgua'] if self.lugar is not None else '-'}"
+                titulo=f"– {self.lugar['cuerpo_agua'] if self.lugar is not None else '-'}"
             )
 
             plt.show()

@@ -12,94 +12,83 @@ CREATE TABLE IF NOT EXISTS municipio (
 
 CREATE TABLE IF NOT EXISTS usuario (
     id SERIAL PRIMARY KEY,
-    nombreUsuario TEXT UNIQUE NOT NULL,
+    nombre_usuario TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     rol TEXT NOT NULL CHECK (rol IN ('Administrador','Usuario')),
-    ultimoInicio TIMESTAMP,
-    idMunicipio INTEGER,
-    FOREIGN KEY (idMunicipio) REFERENCES municipio(id)
+    ultimo_inicio TIMESTAMP,
+    id_municipio INTEGER,
+    FOREIGN KEY (id_municipio) REFERENCES municipio(id)
 );
 
 CREATE TABLE IF NOT EXISTS lugar (
     id SERIAL PRIMARY KEY,
     provincia TEXT,
     ciudad TEXT,
-    cuerpoAgua TEXT,
+    cuerpo_agua TEXT,
     zona TEXT,
-    UNIQUE(provincia, ciudad, cuerpoAgua, zona)
+    UNIQUE(provincia, ciudad, cuerpo_agua, zona)
 );
 
 CREATE TABLE IF NOT EXISTS parametro (
     id SERIAL PRIMARY KEY,
     codigo TEXT UNIQUE NOT NULL,
-    nombreParametro TEXT NOT NULL,
+    nombre_parametro TEXT NOT NULL,
     unidad TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS valorReferencia (
+CREATE TABLE IF NOT EXISTS valor_referencia (
     id SERIAL PRIMARY KEY,
-    idParametro INTEGER NOT NULL,
-    limiteMaxAceptable REAL,
-    limiteMinAceptable REAL,
-    limiteMaxWarning REAL,
-    limiteMinWarning REAL,
+    id_parametro INTEGER NOT NULL,
+    limite_max_aceptable REAL,
+    limite_min_aceptable REAL,
+    limite_max_warning REAL,
+    limite_min_warning REAL,
     normativa TEXT,
-    rangoPosibleMin REAL,
-    rangoPosibleMax REAL,
-    FOREIGN KEY (idParametro) REFERENCES parametro(id)
+    rango_posible_min REAL,
+    rango_posible_max REAL,
+    FOREIGN KEY (id_parametro) REFERENCES parametro(id)
 );
 
 CREATE TABLE IF NOT EXISTS medicion (
     id SERIAL PRIMARY KEY,
-    idLugar INTEGER NOT NULL,
-    fechaMedicion TIMESTAMP NOT NULL,
-    medidaTomadaPor INTEGER NOT NULL,
+    id_lugar INTEGER NOT NULL,
+    fecha_medicion TIMESTAMP NOT NULL,
+    medida_tomada_por INTEGER NOT NULL,
     comentarios TEXT,
     ica REAL,
-    clasificacionICA TEXT,
-    cargadaSistema TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    idMunicipio INTEGER,
-    FOREIGN KEY (idLugar) REFERENCES lugar(id),
-    FOREIGN KEY (medidaTomadaPor) REFERENCES usuario(id),
-    FOREIGN KEY (idMunicipio) REFERENCES municipio(id)
+    clasificacion_ica TEXT,
+    cargada_sistema TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_municipio INTEGER,
+    FOREIGN KEY (id_lugar) REFERENCES lugar(id),
+    FOREIGN KEY (medida_tomada_por) REFERENCES usuario(id),
+    FOREIGN KEY (id_municipio) REFERENCES municipio(id)
 );
 
-CREATE TABLE IF NOT EXISTS valorMedida (
+CREATE TABLE IF NOT EXISTS valor_medida (
     id SERIAL PRIMARY KEY,
-    idMedicion INTEGER NOT NULL,
-    idParametro INTEGER NOT NULL,
+    id_medicion INTEGER NOT NULL,
+    id_parametro INTEGER NOT NULL,
     valor REAL,
     estado TEXT,
     desviacion TEXT,
-    FOREIGN KEY (idMedicion) REFERENCES medicion(id),
-    FOREIGN KEY (idParametro) REFERENCES parametro(id)
+    FOREIGN KEY (id_medicion) REFERENCES medicion(id),
+    FOREIGN KEY (id_parametro) REFERENCES parametro(id)
 );
 
-CREATE TABLE IF NOT EXISTS movimiento (
+CREATE TABLE IF NOT EXISTS ponderacion_parametro (
     id SERIAL PRIMARY KEY,
-    idUsuario INTEGER NOT NULL,
-    accion TEXT,
-    tablaCambiada TEXT,
-    idRegistro INTEGER,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    comentario TEXT,
-    FOREIGN KEY (idUsuario) REFERENCES usuario(id)
-);
-
-CREATE TABLE IF NOT EXISTS ponderacionParametro (
-    id SERIAL PRIMARY KEY,
-    idParametro INTEGER NOT NULL,
+    id_parametro INTEGER NOT NULL,
     ponderacion REAL NOT NULL CHECK (ponderacion >= 0 AND ponderacion <= 1),
     activo INTEGER DEFAULT 1,
-    FOREIGN KEY (idParametro) REFERENCES parametro(id)
+    FOREIGN KEY (id_parametro) REFERENCES parametro(id)
 );
 
-CREATE TABLE IF NOT EXISTS curvaSubindice (
+CREATE TABLE IF NOT EXISTS curva_subindice (
     id SERIAL PRIMARY KEY,
-    idParametro INTEGER NOT NULL,
+    id_parametro INTEGER NOT NULL,
     valor REAL NOT NULL,
     subindice REAL NOT NULL,
-    FOREIGN KEY (idParametro) REFERENCES parametro(id)
+    FOREIGN KEY (id_parametro) REFERENCES parametro(id)
 );
 """
 

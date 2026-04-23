@@ -71,12 +71,12 @@ class ListaParametros(ctk.CTkFrame):
             self.tree.insert("", "end", values=(
                 p["id"],
                 p["codigo"],
-                p["nombreParametro"],
+                p["nombre_parametro"],
                 p["unidad"],
-                r.get("limiteMinAceptable",0),
-                r.get("limiteMaxAceptable",0),
-                r.get("limiteMinWarning",0),
-                r.get("limiteMaxWarning",0),
+                r.get("limite_min_aceptable",0),
+                r.get("limite_max_aceptable",0),
+                r.get("limite_min_warning",0),
+                r.get("limite_max_warning",0),
                 r.get("normativa",""),
                 pond.get("ponderacion",0)      
             ))

@@ -57,7 +57,7 @@ class LoginWindow(ctk.CTkFrame):
         
         session.currentUser = SesionUsuario(
             id=data["id"],
-            nombreUsuario=data["nombreUsuario"],
+            nombreUsuario=data["nombre_usuario"],
             rol=data["rol"]
         )
 

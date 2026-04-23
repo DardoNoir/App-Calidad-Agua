@@ -33,7 +33,7 @@ class FormParametro(ctk.CTkFrame):
 
         camposDatos = [
             ("codigo", "Código"),
-            ("nombreParametro", "Nombre del Parámetro"),
+            ("nombre_parametro", "Nombre del Parámetro"),
             ("unidad", "Unidad")
         ]
 
@@ -51,12 +51,12 @@ class FormParametro(ctk.CTkFrame):
         crear_subtitulo(self.scroll_container, "Valores de Referencia")
 
         camposReferencia = [
-            ("limiteMinAceptable", "Límite Mínimo Aceptable"),
-            ("limiteMaxAceptable", "Límite Máximo Aceptable"),
-            ("limiteMinWarning", "Límite Mínimo Crítico"),
-            ("limiteMaxWarning", "Límite Máximo Crítico"),
-            ("rangoPosibleMin", "Rango Posible Mínimo"),
-            ("rangoPosibleMax", "Rango Posible Máximo"),
+            ("limite_min_aceptable", "Límite Mínimo Aceptable"),
+            ("limite_max_aceptable", "Límite Máximo Aceptable"),
+            ("limite_min_warning", "Límite Mínimo Crítico"),
+            ("limite_max_warning", "Límite Máximo Crítico"),
+            ("rango_posible_min", "Rango Posible Mínimo"),
+            ("rango_posible_max", "Rango Posible Máximo"),
             ("normativa", "Normativa")
         ]
 
@@ -167,14 +167,14 @@ class FormParametro(ctk.CTkFrame):
         curva = traerSubindices(id_param) or []
 
         self.entries["codigo"].insert(0, p["codigo"])
-        self.entries["nombreParametro"].insert(0, p["nombreParametro"])
+        self.entries["nombre_parametro"].insert(0, p["nombre_parametro"])
         self.entries["unidad"].insert(0, p["unidad"])
-        self.entries["limiteMinAceptable"].insert(0, r.get("limiteMinAceptable", 0))
-        self.entries["limiteMaxAceptable"].insert(0, r.get("limiteMaxAceptable", 0))
-        self.entries["limiteMinWarning"].insert(0, r.get("limiteMinWarning", 0))
-        self.entries["limiteMaxWarning"].insert(0, r.get("limiteMaxWarning", 0))
-        self.entries["rangoPosibleMin"].insert(0, r.get("rangoPosibleMin", 0))
-        self.entries["rangoPosibleMax"].insert(0, r.get("rangoPosibleMax", 0))
+        self.entries["limite_min_aceptable"].insert(0, r.get("limite_min_aceptable", 0))
+        self.entries["limite_max_aceptable"].insert(0, r.get("limite_max_aceptable", 0))
+        self.entries["limite_min_warning"].insert(0, r.get("limite_min_warning", 0))
+        self.entries["limite_max_warning"].insert(0, r.get("limite_max_warning", 0))
+        self.entries["rango_posible_min"].insert(0, r.get("rango_posible_min", 0))
+        self.entries["rango_posible_max"].insert(0, r.get("rango_posible_max", 0))
         self.entries["normativa"].insert(0, r.get("normativa", ""))
         self.entries["ponderacion"].insert(0, pond.get("ponderacion", 0))
 
@@ -205,19 +205,19 @@ class FormParametro(ctk.CTkFrame):
             if self.modo == "alta":
                 id_param = insertarParametro(
                     datos["codigo"],
-                    datos["nombreParametro"],
+                    datos["nombre_parametro"],
                     datos["unidad"]
                 )
 
                 insertarValoresReferencia(
                     id_param,
-                    float(datos["limiteMaxAceptable"]),
-                    float(datos["limiteMaxWarning"]),
-                    float(datos["limiteMinAceptable"]),
-                    float(datos["limiteMinWarning"]),
+                    float(datos["limite_max_aceptable"]),
+                    float(datos["limite_max_warning"]),
+                    float(datos["limite_min_aceptable"]),
+                    float(datos["limite_min_warning"]),
                     datos["normativa"],
-                    float(datos["rangoPosibleMin"]),
-                    float(datos["rangoPosibleMax"])
+                    float(datos["rango_posible_min"]),
+                    float(datos["rango_posible_max"])
                 )
 
                 insertarPonderacionParametro(id_param, ponderacion)
@@ -233,19 +233,19 @@ class FormParametro(ctk.CTkFrame):
                 actualizarParametro(
                     id_param,
                     datos["codigo"],
-                    datos["nombreParametro"],
+                    datos["nombre_parametro"],
                     datos["unidad"]
                 )
 
                 actualizarValoresReferencia(
                     id_param,
-                    float(datos["limiteMaxAceptable"]),
-                    float(datos["limiteMaxWarning"]),
-                    float(datos["limiteMinAceptable"]),
-                    float(datos["limiteMinWarning"]),
+                    float(datos["limite_max_aceptable"]),
+                    float(datos["limite_max_warning"]),
+                    float(datos["limite_min_aceptable"]),
+                    float(datos["limite_min_warning"]),
                     datos["normativa"],
-                    float(datos["rangoPosibleMin"]),
-                    float(datos["rangoPosibleMax"])
+                    float(datos["rango_posible_min"]),
+                    float(datos["rango_posible_max"])
                 )
 
                 actualizarPonderacion(id_param, ponderacion)

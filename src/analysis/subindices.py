@@ -4,15 +4,7 @@ import numpy as np
 
 
 class CurvaSubindice:
-    """
-    Representa una curva Subi = f(valor)
-    basada en interpolación de puntos conocidos.
-    """
-
     def __init__(self, puntos: List[Tuple[float, float]]):
-        """
-        puntos: lista de tuplas (valor_medido, subindice)
-        """
         if len(puntos) < 2:
             raise ValueError("Se necesitan al menos 2 puntos para interpolar.")
 

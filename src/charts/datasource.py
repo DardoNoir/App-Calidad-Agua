@@ -14,27 +14,27 @@ def traerSeriesParametroPorLugar(
     
     query = """
         SELECT
-            m.fechaMedicion AS fecha,
+            m.fecha_medicion AS fecha,
             vm.valor AS valor
         FROM medicion m
-        JOIN valorMedida vm
-            ON m.id = vm.idMedicion
+        JOIN valor_medida vm
+            ON m.id = vm.id_medicion
         WHERE
-            m.idLugar = %s
-            AND vm.idParametro = %s
+            m.id_lugar = %s
+            AND vm.id_parametro = %s
     """
 
     params: list[Any] = [idLugar, idParametro]
 
     if fechaInicio is not None:
-        query += " AND m.fechaMedicion >= %s"
+        query += " AND m.fecha_medicion >= %s"
         params.append(fechaInicio)
 
     if fechaFin is not None:
-        query += " AND m.fechaMedicion <= %s    "
+        query += " AND m.fecha_medicion <= %s    "
         params.append(fechaFin)
 
-    query += " ORDER BY m.fechaMedicion ASC"
+    query += " ORDER BY m.fecha_medicion ASC"
 
     with connection() as conn: 
         cursor = getCursor(conn)
@@ -56,14 +56,14 @@ def traerSerieCompletaParametroLugar(
 
     query = """
     SELECT
-        m.fechaMedicion AS fecha,
+        m.fecha_medicion AS fecha,
         vm.valor AS valor
     FROM medicion m
-    JOIN valorMedida vm
-      ON m.id = vm.idMedicion
-     AND vm.idParametro = %s
-    WHERE m.idLugar = %s
-    ORDER BY m.fechaMedicion ASC
+    JOIN valor_medida vm
+      ON m.id = vm.id_medicion
+     AND vm.id_parametro = %s
+    WHERE m.id_lugar = %s
+    ORDER BY m.fecha_medicion ASC
     """
 
     with connection() as conn:
