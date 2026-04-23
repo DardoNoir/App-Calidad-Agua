@@ -71,8 +71,7 @@ def estilizar_encabezado(ws: Worksheet):
 def generarExcelMediciones(
     idsMediciones: List[int],
     rutaGuardar: Path,
-    db_path: Optional[str] = None
-) -> Path:
+):
 
     wb = Workbook()
 
@@ -99,15 +98,15 @@ def generarExcelMediciones(
 
     for idMedicion in idsMediciones:
 
-        medicion = traerMedicionPorId(idMedicion, db_path)
+        medicion = traerMedicionPorId(idMedicion)
         if medicion is None:
             continue
 
-        lugar = traerLugarPorId(medicion["idLugar"], db_path)
+        lugar = traerLugarPorId(medicion["idLugar"])
         if lugar is None:
             raise ValueError("No existe el Lugar")
 
-        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"], db_path)
+        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
         if usuario is None:
             raise ValueError("No existe el usuario")
 
@@ -151,19 +150,19 @@ def generarExcelMediciones(
 
     for idMedicion in idsMediciones:
 
-        medicion = traerMedicionPorId(idMedicion, db_path)
+        medicion = traerMedicionPorId(idMedicion)
         if medicion is None:
             continue
 
-        lugar = traerLugarPorId(medicion["idLugar"], db_path)
+        lugar = traerLugarPorId(medicion["idLugar"])
         if lugar is None:
             raise ValueError("No existe el Lugar")
 
-        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"], db_path)
+        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
         if usuario is None:
             raise ValueError("No existe el usuario")
 
-        valores = traerValoresMedidosDeMedicion(idMedicion, db_path)
+        valores = traerValoresMedidosDeMedicion(idMedicion)
 
         # --------------------------------------------------
         # HOJA DATOS
@@ -225,8 +224,7 @@ def generarExcelMediciones(
 
             serie = traerSerieCompletaParametroLugar(
                 medicion["idLugar"],
-                idParametro,
-                db_path
+                idParametro
             )
 
             if not serie:
@@ -236,8 +234,7 @@ def generarExcelMediciones(
             valores_hist = [float(s["valor"]) for s in serie]
 
             referencia = traerValoresReferenciaPorParametro(
-                idParametro,
-                db_path
+                idParametro
             )
 
             ref = cast(ReferenciaParametro | None, referencia)

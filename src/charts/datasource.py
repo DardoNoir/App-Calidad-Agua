@@ -1,10 +1,8 @@
 from typing import Optional, Any, List
 from datetime import datetime
-from sqlite3 import Row
 from src.utils.datetime import FORMATO_DB
-
 from src.data.db import connection
-
+from src.data.repository import getCursor
 
 def traerSeriesParametroPorLugar(
     idLugar: int,
@@ -12,7 +10,7 @@ def traerSeriesParametroPorLugar(
     fechaInicio: Optional[datetime] = None,
     fechaFin: Optional[datetime] = None,
     db_path: Optional[str] = None
-) -> List[dict[str, Any]]:
+):
     
     query = """
         SELECT
@@ -22,42 +20,39 @@ def traerSeriesParametroPorLugar(
         JOIN valorMedida vm
             ON m.id = vm.idMedicion
         WHERE
-            m.idLugar = ?
-            AND vm.idParametro = ?
+            m.idLugar = %s
+            AND vm.idParametro = %s
     """
 
     params: list[Any] = [idLugar, idParametro]
 
     if fechaInicio is not None:
-        query += " AND m.fechaMedicion >= ?"
+        query += " AND m.fechaMedicion >= %s"
         params.append(fechaInicio)
 
     if fechaFin is not None:
-        query += " AND m.fechaMedicion <= ?"
+        query += " AND m.fechaMedicion <= %s    "
         params.append(fechaFin)
 
     query += " ORDER BY m.fechaMedicion ASC"
 
-    with connection(db_path) as conn:
-        conn.row_factory = Row  
-        cursor = conn.cursor()
+    with connection() as conn: 
+        cursor = getCursor(conn)
         cursor.execute(query, params)
 
         filas = []
         for row in cursor.fetchall():
-            filas.append({ # type: ignore
+            filas.append({ 
                 "fecha": datetime.strptime(row["fecha"], FORMATO_DB),
                 "valor": row["valor"]
             })
 
-        return filas # type: ignore
-
+        return filas 
 
 def traerSerieCompletaParametroLugar(
     idLugar: int,
     idParametro: int,
-    db_path: Optional[str] = None
-) -> List[dict[str, Any]]:
+):
 
     query = """
     SELECT
@@ -66,19 +61,19 @@ def traerSerieCompletaParametroLugar(
     FROM medicion m
     JOIN valorMedida vm
       ON m.id = vm.idMedicion
-     AND vm.idParametro = ?
-    WHERE m.idLugar = ?
+     AND vm.idParametro = %s
+    WHERE m.idLugar = %s
     ORDER BY m.fechaMedicion ASC
     """
 
-    with connection(db_path) as conn:
-        cur = conn.cursor()
+    with connection() as conn:
+        cur = getCursor(conn)
         cur.execute(query, (idParametro, idLugar))
 
         return [
             {
-                "fecha": datetime.strptime(r["fecha"], FORMATO_DB),
-                "valor": r["valor"]
+                "fecha": datetime.strptime(row["fecha"], FORMATO_DB),
+                "valor": row["valor"]
             }
-            for r in cur.fetchall()
+            for row in cur.fetchall()
         ]

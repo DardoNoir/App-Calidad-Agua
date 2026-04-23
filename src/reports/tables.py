@@ -7,10 +7,10 @@ from src.utils.datetime import format_fecha_display
 def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable: 
     styles = getSampleStyleSheet() 
     normal = styles["Normal"] 
-    normal.wordWrap = "CJK" # permite salto de línea real 
+    normal.wordWrap = "CJK"  
 
     acomodar = styles["Normal"]
-    acomodar.wordWrap = None  # sin salto de línea
+    acomodar.wordWrap = None  
 
     alinearDerecha = styles["Normal"].clone("alinearDerecha")
     alinearDerecha.alignment = 2  # RIGHT
@@ -34,7 +34,7 @@ def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable:
                 ]) 
         
     table = Table( 
-        data, colWidths=[80, 80, 70, 70, 200], # 👈 CLAVE 
+        data, colWidths=[80, 80, 70, 70, 200],
         repeatRows=1, 
         hAlign="LEFT" ) 
     

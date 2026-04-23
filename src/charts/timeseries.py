@@ -1,7 +1,3 @@
-# pyright: reportUnknownMemberType=false
-# pyright: reportUnknownVariableType=false
-# pyright: reportUnknownArgumentType=false
-
 from typing import Optional, Sequence, Any
 from datetime import datetime
 
@@ -35,7 +31,6 @@ def graficarParametro(
         label=nombreParametro
     )
 
-    # 👉 FORMATO DE FECHA
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y %H:%M"))
 

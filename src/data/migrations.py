@@ -1,45 +1,43 @@
-import sqlite3
-from pathlib import Path
-import sys
+import psycopg2
+import os
+from dotenv import load_dotenv
 
-def get_db_path():
-    if getattr(sys, 'frozen', False):
-        return Path(sys.executable).parent
-    return Path(__file__).resolve().parents[1]
+load_dotenv()
 
-DB_PATH = get_db_path() / "app.db"
-
-# Script SQL que crea todas las tablas necesarias para el sistema.
-# Cada CREATE TABLE usa IF NOT EXISTS para evitar errores si la tabla ya existe.
 DDL = """
-CREATE TABLE IF NOT EXISTS usuario(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS municipio (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS usuario (
+    id SERIAL PRIMARY KEY,
     nombreUsuario TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     rol TEXT NOT NULL CHECK (rol IN ('Administrador','Usuario')),
-    ultimoInicio DATETIME
+    ultimoInicio TIMESTAMP,
     idMunicipio INTEGER,
     FOREIGN KEY (idMunicipio) REFERENCES municipio(id)
 );
 
-CREATE TABLE IF NOT EXISTS lugar(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS lugar (
+    id SERIAL PRIMARY KEY,
     provincia TEXT,
     ciudad TEXT,
     cuerpoAgua TEXT,
     zona TEXT,
-    UNIQUE(provincia, ciudad, cuerpoAgua)
+    UNIQUE(provincia, ciudad, cuerpoAgua, zona)
 );
 
-CREATE TABLE IF NOT EXISTS parametro(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS parametro (
+    id SERIAL PRIMARY KEY,
     codigo TEXT UNIQUE NOT NULL,
     nombreParametro TEXT NOT NULL,
     unidad TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS valorReferencia(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS valorReferencia (
+    id SERIAL PRIMARY KEY,
     idParametro INTEGER NOT NULL,
     limiteMaxAceptable REAL,
     limiteMinAceptable REAL,
@@ -51,23 +49,23 @@ CREATE TABLE IF NOT EXISTS valorReferencia(
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );
 
-CREATE TABLE IF NOT EXISTS medicion(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS medicion (
+    id SERIAL PRIMARY KEY,
     idLugar INTEGER NOT NULL,
-    fechaMedicion DATETIME NOT NULL,
+    fechaMedicion TIMESTAMP NOT NULL,
     medidaTomadaPor INTEGER NOT NULL,
     comentarios TEXT,
     ica REAL,
     clasificacionICA TEXT,
-    cargadaSistema DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cargadaSistema TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     idMunicipio INTEGER,
     FOREIGN KEY (idLugar) REFERENCES lugar(id),
-    FOREIGN KEY (medidaTomadaPor) REFERENCES usuario(id)
+    FOREIGN KEY (medidaTomadaPor) REFERENCES usuario(id),
     FOREIGN KEY (idMunicipio) REFERENCES municipio(id)
 );
 
-CREATE TABLE IF NOT EXISTS valorMedida(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS valorMedida (
+    id SERIAL PRIMARY KEY,
     idMedicion INTEGER NOT NULL,
     idParametro INTEGER NOT NULL,
     valor REAL,
@@ -77,49 +75,60 @@ CREATE TABLE IF NOT EXISTS valorMedida(
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );
 
-CREATE TABLE IF NOT EXISTS movimiento(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS movimiento (
+    id SERIAL PRIMARY KEY,
     idUsuario INTEGER NOT NULL,
     accion TEXT,
     tablaCambiada TEXT,
     idRegistro INTEGER,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     comentario TEXT,
     FOREIGN KEY (idUsuario) REFERENCES usuario(id)
 );
 
-CREATE TABLE IF NOT EXISTS ponderacionParametro(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS ponderacionParametro (
+    id SERIAL PRIMARY KEY,
     idParametro INTEGER NOT NULL,
     ponderacion REAL NOT NULL CHECK (ponderacion >= 0 AND ponderacion <= 1),
     activo INTEGER DEFAULT 1,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
-);  
+);
 
-CREATE TABLE IF NOT EXISTS curvaSubindice(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS curvaSubindice (
+    id SERIAL PRIMARY KEY,
     idParametro INTEGER NOT NULL,
     valor REAL NOT NULL,
     subindice REAL NOT NULL,
     FOREIGN KEY (idParametro) REFERENCES parametro(id)
 );
-
-CREATE TABLE municipio (
-    id SERIAL PRIMARY KEY,
-    nombre TEXT UNIQUE NOT NULL
-);
 """
 
-def run_migrations(db_path: str | None = None):
-    path = db_path or str(DB_PATH)
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(path)
-    cur = conn.cursor()
-    cur.executescript(DDL)  # Ejecuta todo el SQL de una vez
-    conn.commit()
-    conn.close()
-    print(f"Migration ran. DB en: {path}")
+def get_connection():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        port=os.getenv("DB_PORT"),
+        sslmode=os.getenv("DB_SSLMODE")
+    )
 
-# Permite ejecutar: python migrations.py
+def run_migrations():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(DDL)
+        conn.commit()
+        print("✅ Migraciones ejecutadas correctamente en PostgreSQL (Supabase)")
+    except Exception as e:
+        conn.rollback()
+        print("❌ Error en migraciones:", e)
+        raise
+    finally:
+        cur.close()
+        conn.close()
+
+
 if __name__ == "__main__":
     run_migrations()

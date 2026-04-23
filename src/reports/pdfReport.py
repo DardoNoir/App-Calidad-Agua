@@ -1,4 +1,4 @@
-from typing import Optional, List, cast
+from typing import Any, Optional, List, cast
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from reportlab.lib.styles import getSampleStyleSheet
@@ -30,23 +30,21 @@ from src.charts.exporter import guardar_figura
 
 
 
-def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = None) -> Path:
-    # Genera un reporte PDF para una medición específica.
-    # Datos de la medición y sus valores
-    medicion = traerMedicionPorId(idMedicion, db_path)
+def generarReporte(idMedicion: int, rutaGuardar: Path):
+    medicion = traerMedicionPorId(idMedicion)
     if medicion is None:
         raise RuntimeError("Medición no encontrada")
     
-    valores = traerValoresMedidosDeMedicion(idMedicion, db_path)
+    valores = traerValoresMedidosDeMedicion(idMedicion)
     if not valores:
         raise RuntimeError("La medición no tiene valores cargados")
 
     # Datos del lugar 
-    lugar = traerLugarPorId(medicion["idLugar"], db_path)
+    lugar = traerLugarPorId(medicion["idLugar"])
     if lugar is None:
         raise RuntimeError("Lugar no encontrado")
     # Datos del usuario
-    usuario = traerUsuarioPorId(medicion["medidaTomadaPor"], db_path)
+    usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
     if usuario is None:
         raise RuntimeError("Usuario no encontrado")
     
@@ -71,7 +69,7 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
 
     # Tabla de valores medidos
     elementos.append(Paragraph("Valores Medidos:", styles['Heading2']))
-    tabla_valores = crearTablaValoresMedidos(valores)
+    tabla_valores = crearTablaValoresMedidos(valores) # type: ignore
 
     elementos.append(tabla_valores)
     elementos.append(Spacer(1, 12))
@@ -90,8 +88,7 @@ def generarReporte(idMedicion: int, rutaGuardar: Path, db_path: Optional[str] = 
         # Traer serie histórica
         series = traerSerieCompletaParametroLugar(
             medicion["idLugar"],
-            idParametro,
-            db_path
+            idParametro
         )
         if not series:
             continue  # No hay datos históricos para este parámetro
