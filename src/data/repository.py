@@ -3,7 +3,7 @@ from typing import Optional
 from psycopg2.extras import RealDictCursor
 
 from src.utils.security import verify_password, hash_password
-from src.utils.datetime import parse_fecha_str, ahora_str
+from src.utils.datetime import parse_fecha_str, ahora_str, parse_fecha_dt
 
 from src.analysis.evaluacion import ReferenciaParametro, EvaluarParametro
 from src.analysis.calculoIca import calcular_ica, clasificar_ica, ajustar_ponderaciones
@@ -431,7 +431,7 @@ def insertarValorMedido(
         for p in parametros:
             cur.execute("""
                 INSERT INTO valor_medida (id_medicion, id_parametro, valor, estado, desviacion)
-                VALUES (%s, %s, %s, %s, %s),
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id
                 """, (idMedicion, p["id_parametro"], valor, estado, desviacion))
             
@@ -483,6 +483,7 @@ def insertarValoresReferencia(idParametro: int, limiteMaxAceptable: float, limit
             INSERT INTO valor_referencia (id_parametro, limite_max_aceptable, limite_max_warning,
                      limite_min_aceptable, limite_min_warning, normativa, rango_posible_min, rango_posible_max)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id        
         """, (idParametro, limiteMaxAceptable, limiteMaxWarning, 
               limiteMinAceptable, limiteMinWarning, normativa, rangoPosibleMin, rangoPosibleMax))
 
@@ -552,7 +553,7 @@ def actualizarPonderacion(idParametro: int, ponderacion: float):
         cur = getCursor(conn)
         cur.execute(
             """
-            UPDATE ponderacion_parametro SET ponderacion = %s WHERE id = %s
+            UPDATE ponderacion_parametro SET ponderacion = %s WHERE id_parametro = %s
         """,
         (ponderacion, idParametro))
 
@@ -618,4 +619,4 @@ def cargar_curvas_desde_db():
             puntos = cur.fetchall()
             if len(puntos) > 2:
                 lista_puntos = [(pt["valor"], pt["subindice"]) for pt in puntos]
-                registrar_curva(p["nombreParametro"], lista_puntos)
+                registrar_curva(p["nombre_parametro"], lista_puntos)

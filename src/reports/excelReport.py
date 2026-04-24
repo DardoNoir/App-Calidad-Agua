@@ -102,23 +102,23 @@ def generarExcelMediciones(
         if medicion is None:
             continue
 
-        lugar = traerLugarPorId(medicion["idLugar"])
+        lugar = traerLugarPorId(medicion["id_lugar"])
         if lugar is None:
             raise ValueError("No existe el Lugar")
 
-        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
+        usuario = traerUsuarioPorId(medicion["medida_tomada_por"])
         if usuario is None:
             raise ValueError("No existe el usuario")
 
         ws_resumen.append([
             medicion["id"],
-            format_fecha_display(medicion["fechaMedicion"]),
+            format_fecha_display(medicion["fecha_medicion"]),
             lugar["provincia"],
             lugar["ciudad"],
-            lugar["cuerpoAgua"],
-            usuario["nombreUsuario"],
+            lugar["cuerpo_agua"],
+            usuario["nombre_usuario"],
             medicion["ica"],
-            medicion["clasificacionICA"],
+            medicion["clasificacion_ica"],
             medicion["comentarios"]
         ])
 
@@ -154,11 +154,11 @@ def generarExcelMediciones(
         if medicion is None:
             continue
 
-        lugar = traerLugarPorId(medicion["idLugar"])
+        lugar = traerLugarPorId(medicion["id_lugar"])
         if lugar is None:
             raise ValueError("No existe el Lugar")
 
-        usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
+        usuario = traerUsuarioPorId(medicion["medida_tomada_por"])
         if usuario is None:
             raise ValueError("No existe el usuario")
 
@@ -174,14 +174,14 @@ def generarExcelMediciones(
         )
 
         ws_datos.append(["Medición N°", medicion["id"]])
-        ws_datos.append(["Fecha", format_fecha_display(medicion["fechaMedicion"])])
+        ws_datos.append(["Fecha", format_fecha_display(medicion["fecha_medicion"])])
         ws_datos.append([
             "Lugar",
-            f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpoAgua']}"
+            f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpo_agua']}"
         ])
-        ws_datos.append(["Tomada por", usuario["nombreUsuario"]])
+        ws_datos.append(["Tomada por", usuario["nombre_usuario"]])
         ws_datos.append(["ICA", medicion["ica"]])
-        ws_datos.append(["Clasificación", medicion["clasificacionICA"]])
+        ws_datos.append(["Clasificación", medicion["clasificacion_ica"]])
         ws_datos.append([])
 
         ws_datos.append([
@@ -194,7 +194,7 @@ def generarExcelMediciones(
 
         for valor in valores:
             ws_datos.append([
-                valor["nombreParametro"],
+                valor["nombre_parametro"],
                 valor["valor"],
                 valor["unidad"],
                 valor["estado"],
@@ -218,12 +218,12 @@ def generarExcelMediciones(
 
         for valor in valores:
 
-            idParametro = valor["idParametro"]
-            nombreParametro = valor["nombreParametro"]
+            idParametro = valor["id_parametro"]
+            nombreParametro = valor["nombre_parametro"]
             unidad = valor["unidad"]
 
             serie = traerSerieCompletaParametroLugar(
-                medicion["idLugar"],
+                medicion["id_lugar"],
                 idParametro
             )
 
@@ -245,7 +245,7 @@ def generarExcelMediciones(
                 nombreParametro=nombreParametro,
                 unidad=unidad,
                 referencia=ref,
-                titulo=f"en {lugar['cuerpoAgua']}"
+                titulo=f"en {lugar['cuerpo_agua']}"
             )
 
             img_bytes = BytesIO()

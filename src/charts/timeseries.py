@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from decimal import Decimal
 
 from src.analysis.evaluacion import ReferenciaParametro
 
@@ -41,18 +42,21 @@ def graficarParametro(
         min_warn = referencia.get("limiteMinWarning")
         max_warn = referencia.get("limiteMaxWarning")
 
-    if isinstance(max_ok, float):
-        ax.axhline(y=max_ok, linestyle="--", color="green", label="Máximo aceptable")
+    def add_line(y, style, color, label):
+        if isinstance(y, (int, float, Decimal)):
+            handles, labels = ax.get_legend_handles_labels()
+            label_final = label if label not in labels else ""
+            ax.axhline(
+                y=float(y),
+                linestyle = style,
+                color = color,
+                label = label_final,
+            )
 
-    if isinstance(min_ok, float):
-        ax.axhline(y=min_ok, linestyle="--", color="green", label="Mínimo aceptable")
-
-    if isinstance(min_warn, float):
-        ax.axhline(y=min_warn, linestyle=":", color="red", label="Mínimo advertencia")
-
-    if isinstance(max_warn, float):
-        ax.axhline(y=max_warn, linestyle=":", color="red", label="Máximo advertencia")
-
+    add_line(max_ok, "--", "green", "Máximo Aceptable")
+    add_line(min_ok, "--", "green", "Mínimo Aceptable")
+    add_line(max_warn, ":", "red", "Máximo Advertencia")
+    add_line(min_warn, ":", "red", "Mínimo Advertencia")
 
     ax.set_xlabel("Fecha de Medición")
     ax.set_ylabel(f"{nombreParametro} ({unidad})")

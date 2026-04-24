@@ -155,7 +155,7 @@ class DescargarMediciones(ctk.CTkFrame):
                 round(m["ica"], 2) if m["ica"] else "",
                 m["clasificacion_ica"] or "",
                 m["comentarios"] or "",
-                m["cargada_en_sistema"],
+                m["cargada_sistema"],
                 "☐"
             ))
     

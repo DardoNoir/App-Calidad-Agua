@@ -9,7 +9,6 @@ def traerSeriesParametroPorLugar(
     idParametro: int,
     fechaInicio: Optional[datetime] = None,
     fechaFin: Optional[datetime] = None,
-    db_path: Optional[str] = None
 ):
     
     query = """
@@ -43,7 +42,7 @@ def traerSeriesParametroPorLugar(
         filas = []
         for row in cursor.fetchall():
             filas.append({ 
-                "fecha": datetime.strptime(row["fecha"], FORMATO_DB),
+                "fecha": row["fecha"],
                 "valor": row["valor"]
             })
 
@@ -72,7 +71,7 @@ def traerSerieCompletaParametroLugar(
 
         return [
             {
-                "fecha": datetime.strptime(row["fecha"], FORMATO_DB),
+                "fecha": row["fecha"],
                 "valor": row["valor"]
             }
             for row in cur.fetchall()

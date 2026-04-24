@@ -40,16 +40,16 @@ def generarReporte(idMedicion: int, rutaGuardar: Path):
         raise RuntimeError("La medición no tiene valores cargados")
 
     # Datos del lugar 
-    lugar = traerLugarPorId(medicion["idLugar"])
+    lugar = traerLugarPorId(medicion["id_lugar"])
     if lugar is None:
         raise RuntimeError("Lugar no encontrado")
     # Datos del usuario
-    usuario = traerUsuarioPorId(medicion["medidaTomadaPor"])
+    usuario = traerUsuarioPorId(medicion["medida_tomada_por"])
     if usuario is None:
         raise RuntimeError("Usuario no encontrado")
     
     # Formatear fecha
-    fecha = format_fecha_display(medicion["fechaMedicion"])
+    fecha = format_fecha_display(medicion["fecha_medicion"])
     
     # Crear documento PDF
     doc = SimpleDocTemplate(str(rutaGuardar))
@@ -61,9 +61,9 @@ def generarReporte(idMedicion: int, rutaGuardar: Path):
     elementos.append(Spacer(1, 12))
 
     tabla_info = crearTablaDatosGenerales(
-        lugar=f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpoAgua']}",
+        lugar=f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpo_agua']}",
         fecha=fecha,
-        usuario=f"{usuario['nombreUsuario']}")
+        usuario=f"{usuario['nombre_usuario']}")
     elementos.append(tabla_info)
     elementos.append(Spacer(1, 12))
 
@@ -81,13 +81,13 @@ def generarReporte(idMedicion: int, rutaGuardar: Path):
         tmpdir = Path(tmpdir)
 
     for valor in valores:
-        idParametro = valor["idParametro"]
-        nombreParametro = valor["nombreParametro"]
+        idParametro = valor["id_parametro"]
+        nombreParametro = valor["nombre_parametro"]
         unidad = valor["unidad"]
 
         # Traer serie histórica
         series = traerSerieCompletaParametroLugar(
-            medicion["idLugar"],
+            medicion["id_lugar"],
             idParametro
         )
         if not series:
@@ -106,7 +106,7 @@ def generarReporte(idMedicion: int, rutaGuardar: Path):
                 nombreParametro=nombreParametro,
                 unidad=unidad,
                 referencia=ref,
-                titulo=f"en {lugar['cuerpoAgua']}"
+                titulo=f"en {lugar['cuerpo_agua']}"
             )
 
         rutaImagen = tmpdir / f"parametro_{nombreParametro}.png"
@@ -121,7 +121,7 @@ def generarReporte(idMedicion: int, rutaGuardar: Path):
     elementos.append(Paragraph("Índice de Calidad del Agua:", styles['Heading2']))
     tablaIca = crearTablaICA(
         medicion["ica"],
-        medicion["clasificacionICA"]
+        medicion["clasificacion_ica"]
     )
     elementos.append(tablaIca)
     elementos.append(Spacer(1, 12))

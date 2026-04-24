@@ -26,7 +26,7 @@ def crearTablaValoresMedidos(valores: List[Dict[str, Any]]) -> Flowable:
     ] 
     
     for valor in valores: 
-        data.append([ Paragraph(str(valor["nombreParametro"]), acomodar), 
+        data.append([ Paragraph(str(valor["nombre_parametro"]), acomodar), 
                      Paragraph(str(valor["valor"]), alinearDerecha), 
                      Paragraph(str(valor["unidad"] or "-"), normal), 
                      Paragraph(str(valor["estado"]), normal), 
