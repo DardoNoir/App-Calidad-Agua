@@ -37,10 +37,10 @@ def graficarParametro(
 
     max_ok = min_ok = min_warn = max_warn = None
     if referencia is not None:
-        max_ok = referencia.get("limiteMaxAceptable")
-        min_ok = referencia.get("limiteMinAceptable")
-        min_warn = referencia.get("limiteMinWarning")
-        max_warn = referencia.get("limiteMaxWarning")
+        max_ok = referencia.get("limite_max_aceptable")
+        min_ok = referencia.get("limite_min_aceptable")
+        min_warn = referencia.get("limite_min_warning")
+        max_warn = referencia.get("limite_max_warning")
 
     def add_line(y, style, color, label):
         if isinstance(y, (int, float, Decimal)):

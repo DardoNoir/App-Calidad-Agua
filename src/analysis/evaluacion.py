@@ -2,10 +2,10 @@ from typing import TypedDict, Optional
 
 
 class ReferenciaParametro(TypedDict, total=False):
-    limiteMinAceptable: Optional[float]
-    limiteMaxAceptable: Optional[float]
-    limiteMinWarning: Optional[float]
-    limiteMaxWarning: Optional[float]
+    limite_min_aceptable: Optional[float]
+    limite_max_aceptable: Optional[float]
+    limite_min_warning: Optional[float]
+    limite_max_warning: Optional[float]
    
 
 
@@ -13,10 +13,10 @@ def EvaluarParametro(valor: float, referencia: Optional[ReferenciaParametro] | N
     if not referencia:
         return ("Sin referencia", "")
 
-    limiteMin = referencia.get("limiteMinAceptable")
-    limiteMax = referencia.get("limiteMaxAceptable")
-    limiteMinWarning = referencia.get("limiteMinWarning")
-    limiteMaxWarning = referencia.get("limiteMaxWarning")
+    limiteMin = referencia.get("limite_min_aceptable")
+    limiteMax = referencia.get("limite_max_aceptable")
+    limiteMinWarning = referencia.get("limite_min_warning")
+    limiteMaxWarning = referencia.get("limite_max_warning")
     
     # ===== CRÍTICOS =====
     if limiteMinWarning is not None and valor < limiteMinWarning:
