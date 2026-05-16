@@ -15,7 +15,9 @@ class CargarMediciones(ctk.CTkFrame):
         self.on_back = on_back
 
         self.parametros = traerParametros()
-        self.lugares = traerLugares()
+        if session.currentUser is None:
+            raise ValueError("No hay usuario autenticado")
+        self.lugares = traerLugaresPorUsuario(session.currentUser.id)
 
         self.provincias = sorted(set(l["provincia"] for l in self.lugares if l["provincia"]))
         self.ciudades = sorted(set(l["ciudad"] for l in self.lugares if l["ciudad"]))

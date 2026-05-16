@@ -1,3 +1,5 @@
+from src.analysis.subindices import calcular_subindice_parametro
+
 from .db import connection
 from typing import Optional
 from psycopg2.extras import RealDictCursor
@@ -7,7 +9,7 @@ from src.utils.datetime import parse_fecha_str, ahora_str, parse_fecha_dt
 
 from src.analysis.evaluacion import ReferenciaParametro, EvaluarParametro
 from src.analysis.calculoIca import calcular_ica, clasificar_ica, ajustar_ponderaciones
-from src.analysis.subindices import calcular_subindice_parametro, registrar_curva, _CURVAS
+from src.curves.curvas_service import asegurar_curva_cargada, recargar_curva, invalidar_curva
 
 # ============================================================
 #                 HELPERS
@@ -99,26 +101,24 @@ def existeUsuario(nombre: str):
 # ============================================================
 #               MANEJO DE LUGARES
 # ============================================================
-def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, zona: str):
+def insertarLugar(provincia: str, ciudad: str, cuerpoAgua: str, zona: str, id_municipio: int):
     with connection() as conn:
         cur = getCursor(conn)
         
-        # Verificar existencia
         cur.execute("""
             SELECT id FROM lugar
-            WHERE provincia = %s AND ciudad = %s AND cuerpo_agua = %s AND zona = %s
-        """, (provincia, ciudad, cuerpoAgua, zona))
+            WHERE provincia = %s AND ciudad = %s AND cuerpo_agua = %s AND zona = %s AND id_municipio = %s
+        """, (provincia, ciudad, cuerpoAgua, zona, id_municipio))
 
         row = cur.fetchone()
         if row:
             return int(row["id"])
         
-        # Si no existe, insertar
         cur.execute("""
-            INSERT INTO lugar (provincia, ciudad, cuerpo_agua, zona)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO lugar (provincia, ciudad, cuerpo_agua, zona, id_municipio)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING id
-        """, (provincia, ciudad, cuerpoAgua, zona))
+        """, (provincia, ciudad, cuerpoAgua, zona, id_municipio))
 
         row = cur.fetchone()
         if row:
@@ -136,6 +136,29 @@ def traerLugarPorId(idLugar: int):
         cur.execute("SELECT * FROM lugar WHERE id = %s", (idLugar,))
         return cur.fetchone()
 
+def traerLugaresPorUsuario(idUsuario: int):
+    with connection() as conn:
+        cur = getCursor(conn)
+
+        usuario = traerUsuarioPorId(idUsuario)
+        if usuario is None:
+            raise Exception("Error al cargar usuario")
+
+        if usuario["rol"] == "Administrador" and usuario["id_municipio"] is None:
+            cur.execute(
+                """
+                SELECT * FROM lugar
+                ORDER BY provincia, ciudad, cuerpo_agua, zona
+                """)
+            return cur.fetchall()
+
+        cur.execute(
+            """
+            SELECT * FROM lugar
+            WHERE id_municipio = %s
+            ORDER BY provincia, ciudad, cuerpo_agua, zona
+            """, (usuario["id_municipio"],))
+        return cur.fetchall()
 # ============================================================
 #               MANEJO DE PARÁMETROS
 # ============================================================
@@ -279,8 +302,14 @@ def guardarMedicionCompleta(
         valores: dict[int, float],
         zona: str,
 ):
+    
+    # Usuario
+    usuario = traerUsuarioPorId(usuarioId)
+    if usuario is None:
+        raise ValueError("Usuario no encontrado")
+    
     # Lugar
-    idLugar = insertarLugar(provincia, ciudad, cuerpoAgua, zona)
+    idLugar = insertarLugar(provincia, ciudad, cuerpoAgua, zona, usuario["id_municipio"])
     if idLugar is None:
         raise ValueError("Error al insertar lugar")
 
@@ -308,12 +337,9 @@ def guardarMedicionCompleta(
             desviacion)
         
         try:
-            par = traerParametroPorId(idParametro)
-            if par:
-                sub = calcular_subindice_parametro(par["nombre_parametro"], valor)
-            else:
-                continue
-
+            asegurar_curva_cargada(idParametro)
+            sub = calcular_subindice_parametro(idParametro, valor)
+        
             if sub is None:
                 continue
 
@@ -370,7 +396,7 @@ def traerMedicionesConDetalleLugar():
         """)
         return cur.fetchall()
 
-def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, zona=None):
+def traerMedicionesFiltradas(id_usuario: int, provincia=None, ciudad=None, cuerpoAgua=None, zona=None):
     with connection() as conn:
         cur = getCursor(conn)
         query = """
@@ -392,7 +418,13 @@ def traerMedicionesFiltradas(provincia=None, ciudad=None, cuerpoAgua=None, zona=
             WHERE 1=1
         """
         params = []
+        usuario = traerUsuarioPorId(id_usuario)
+        if usuario is None:
+            raise ValueError("Error usuario no encontrado")
 
+        if usuario["rol"] != "Administrador" or usuario["id_municipio"] is not None:
+            query += "AND l.id_municipio = %s"
+            params.append(usuario["id_municipio"])
         if provincia:
             query += " AND l.provincia = %s"
             params.append(provincia)
@@ -585,6 +617,8 @@ def insertarValor(idParametro: int, valor: float, subindice: float):
             VALUES (%s, %s, %s)
         """, (idParametro, valor, subindice))
 
+    recargar_curva(idParametro)
+
 def eliminarValor(idParametro: int):
     with connection() as conn:
         cur = getCursor(conn)
@@ -592,6 +626,8 @@ def eliminarValor(idParametro: int):
             DELETE FROM curva_subindice
             WHERE id_parametro = %s
         """, (idParametro,))
+
+    invalidar_curva(idParametro)
 
 def traerSubindices(idParametro: int):
     with connection() as conn:
@@ -603,20 +639,3 @@ def traerSubindices(idParametro: int):
             ORDER BY valor
         """, (idParametro,))
         return cur.fetchall()
-    
-def cargar_curvas_desde_db():
-    parametros = traerParametros()
-
-    for p in parametros:
-        with connection() as conn:
-            cur = getCursor(conn)
-            cur.execute("""
-                SELECT valor, subindice
-                FROM curva_subindice
-                WHERE id_parametro = %s
-                ORDER BY valor
-            """, (p["id"],))
-            puntos = cur.fetchall()
-            if len(puntos) > 2:
-                lista_puntos = [(pt["valor"], pt["subindice"]) for pt in puntos]
-                registrar_curva(p["nombre_parametro"], lista_puntos)

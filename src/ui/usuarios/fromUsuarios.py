@@ -91,7 +91,7 @@ class FormUsuario(ctk.CTkFrame):
             messagebox.showerror("Error", "Usuario no encontrado.")
             return
 
-        self.entries["nombre"].insert(0, usuario["nombreUsuario"])
+        self.entries["nombre"].insert(0, usuario["nombre_usuario"])
         self.entries["password"].insert(0, "")
         self.rol_combo.set(usuario["rol"])
 

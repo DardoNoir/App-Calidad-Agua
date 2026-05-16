@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from src.data.repository import *
+from src.ui import session
 from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
 from pathlib import Path
@@ -17,7 +18,10 @@ class DescargarMediciones(ctk.CTkFrame):
 
         self.selecciones = set()
 
-        self.lugares = traerLugares()
+        if session.currentUser is None:
+            raise ValueError("No hay usuario autenticado")
+
+        self.lugares = traerLugaresPorUsuario(session.currentUser.id)
 
         self.scroll_container = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll_container.pack(fill="both", expand=True, padx=5, pady=5)
@@ -131,6 +135,10 @@ class DescargarMediciones(ctk.CTkFrame):
         return None if valor in ("", "-", None) else valor
     
     def buscar_mediciones(self):
+        user = session.currentUser    
+        if user is None:
+            raise ValueError("No hay usuarioa autenticado")
+        
         for item in self.tree.get_children():
             self.tree.delete(item)
 
@@ -144,7 +152,7 @@ class DescargarMediciones(ctk.CTkFrame):
             return
 
 
-        self.mediciones = traerMedicionesFiltradas(prov, ciud, cuerpoAgua, zona)
+        self.mediciones = traerMedicionesFiltradas(user.id, prov, ciud, cuerpoAgua, zona)
 
 
         for m in self.mediciones: 

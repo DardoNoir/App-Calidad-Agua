@@ -1,10 +1,10 @@
 import customtkinter as ctk
 from src.data.repository import *
+from src.ui import session
 from src.ui.uiUtils import *
 from tkinter import messagebox, ttk
 from src.ui.mediciones.detalleMedicion import DetalleMedicion
 from src.utils.datetime import format_fecha_display
-
 
 class HistorialMediciones(ctk.CTkFrame):
     def __init__(self, master, on_back):
@@ -12,9 +12,13 @@ class HistorialMediciones(ctk.CTkFrame):
         self.pack(fill="both", expand=True)
         self.on_back = on_back
 
-        self.selecciones = set()
+        user = session.currentUser    
+        if user is None:
+            raise ValueError("No hay usuarioa autenticado")
 
-        self.lugares = traerLugares()
+        self.selecciones = set()
+                
+        self.lugares = traerLugaresPorUsuario(user.id)
         self.mediciones = []
 
         self.scroll_container = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -132,6 +136,10 @@ class HistorialMediciones(ctk.CTkFrame):
         return None if valor in ("", "-", None) else valor
 
     def buscar_mediciones(self):
+        user = session.currentUser    
+        if user is None:
+            raise ValueError("No hay usuarioa autenticado")
+        
         for item in self.tree.get_children():
             self.tree.delete(item)
 
@@ -144,7 +152,7 @@ class HistorialMediciones(ctk.CTkFrame):
             messagebox.showerror("Error", "Lugar no seleccionado")
             return
 
-        self.mediciones = traerMedicionesFiltradas(prov, ciud, cuerpoAgua, zona)
+        self.mediciones = traerMedicionesFiltradas(user.id,prov, ciud, cuerpoAgua, zona)
 
         for m in self.mediciones:
             self.tree.insert("", "end", values=(
