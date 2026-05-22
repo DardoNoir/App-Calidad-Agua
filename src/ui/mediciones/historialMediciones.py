@@ -31,6 +31,8 @@ class HistorialMediciones(ctk.CTkFrame):
         ).pack(pady=20)
 
         crear_subtitulo(self.scroll_container, "Seleccionar lugar medido")
+        crear_aclaracion(self.scroll_container, 
+                         "Orden de selección: Provincia > Ciudad > Río > Zona")
 
         filtro_frame = ctk.CTkFrame(self.scroll_container, fg_color="transparent")
         filtro_frame.pack(pady=10)

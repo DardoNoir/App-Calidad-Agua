@@ -90,6 +90,10 @@ class FormParametro(ctk.CTkFrame):
 
         btn_agregar = ctk.CTkButton(
             self.scroll_container,
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
             text="Agregar Punto",
             command=self.agregar_fila
         )
@@ -108,6 +112,10 @@ class FormParametro(ctk.CTkFrame):
         ctk.CTkButton(
             frame_botones,
             text="Guardar",
+            height=40,
+            text_color="#0c0000",
+            fg_color="#007BFF",
+            hover_color="#0fb300",
             width=140,
             command=self.guardar
         ).pack(side="left", padx=15)
@@ -116,6 +124,10 @@ class FormParametro(ctk.CTkFrame):
             frame_botones,
             text="Volver",
             width=150,
+            height=40,
+            text_color="#ffffff",
+            fg_color="#FF0000",
+            hover_color="#f8b808",
             command=self.volver
         ).pack(side="left", padx=15)
 
@@ -138,18 +150,19 @@ class FormParametro(ctk.CTkFrame):
             fila,
             text="X",
             width=40,
+            height=20,
+            text_color="#ffffff",
+            fg_color="#FF0000",
+            hover_color="#f8b808",
             command=lambda: self.eliminar_fila(fila)
         )
         btn_eliminar.pack(side="left", padx=5)
 
-        self.puntos_entries.append((entry_valor, entry_sub))
+        self.puntos_entries.append({"fila": fila, "valor": entry_valor, "subindice": entry_sub})
 
     def eliminar_fila(self, fila):
+        self.puntos_entries = [e for e in self.puntos_entries if e["fila"] != fila]
         fila.destroy()
-        self.puntos_entries = [
-            (v, s) for (v, s) in self.puntos_entries
-            if v.winfo_exists() and s.winfo_exists()
-        ]
 
     # ==========================================================
     # CARGA DATOS
@@ -250,17 +263,30 @@ class FormParametro(ctk.CTkFrame):
 
                 actualizarPonderacion(id_param, ponderacion)
 
-                eliminarValor(id_param)
-
             # GUARDAR CURVA
-            for entry_valor, entry_sub in self.puntos_entries:
-                v = entry_valor.get().strip()
-                s = entry_sub.get().strip()
+            puntos = []
+            for punto in self.puntos_entries:
+                valor = punto["valor"].get().strip()
+                subindice = punto["subindice"].get().strip()
 
-                if v == "" or s == "":
-                    continue
+                if valor == "" or subindice == "":
+                    messagebox.showerror("Error", "Todos los puntos de la curva deben tener valor y subíndice.")
+                    return
 
-                insertarValor(id_param, float(v), float(s))
+                try:
+                    valor_f = float(valor)
+                    subindice_f = float(subindice)
+                    puntos.append((valor_f, subindice_f))
+                except:
+                    messagebox.showerror("Error", "Valores de curva inválidos.")
+                    return
+                
+            if len (puntos) < 2:
+                messagebox.showerror("Error", "Se requieren al menos dos puntos para guardar la curva.")
+                return
+                
+            puntos.sort(key=lambda x: x[0])  # Ordenar por valor medido
+            guardarCurvas(id_param, puntos)
 
         except Exception as e:
             messagebox.showerror("Error BD", str(e))

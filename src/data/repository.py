@@ -59,7 +59,7 @@ def actualizarUsuarioSinPassword(idUsuario, nombreUsuario, rol):
 def traerUsuarios():
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM usuario")
+        cur.execute("SELECT * FROM usuario ORDER BY id")
         return cur.fetchall()  
 
 def traerUsuarioPorNombre(nombreUsuario: str):
@@ -189,7 +189,7 @@ def insertarParametro(codigo: str, nombreParametro: str, unidad: str):
 def traerParametros():
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM parametro")
+        cur.execute("SELECT * FROM parametro ORDER BY id")
         return cur.fetchall()
     
 def traerParametroPorId(idParametro: int):
@@ -280,8 +280,8 @@ def traerMedicionesPorLugarYFecha(idLugar: int, fechaMedicion: str):
 def traerMediciones():
     with connection() as conn:
         cur = getCursor(conn)
-        cur.execute("SELECT * FROM medicion")
-        cur.fetchall()
+        cur.execute("SELECT * FROM medicion ORDER BY fecha_medicion DESC")
+        return cur.fetchall()
 
 def actualizarICAMedicion(idMedicion: int, ica: float, clasificacionICA: str):
     with connection() as conn:
@@ -617,8 +617,6 @@ def insertarValor(idParametro: int, valor: float, subindice: float):
             VALUES (%s, %s, %s)
         """, (idParametro, valor, subindice))
 
-    recargar_curva(idParametro)
-
 def eliminarValor(idParametro: int):
     with connection() as conn:
         cur = getCursor(conn)
@@ -626,8 +624,6 @@ def eliminarValor(idParametro: int):
             DELETE FROM curva_subindice
             WHERE id_parametro = %s
         """, (idParametro,))
-
-    invalidar_curva(idParametro)
 
 def traerSubindices(idParametro: int):
     with connection() as conn:
@@ -639,3 +635,27 @@ def traerSubindices(idParametro: int):
             ORDER BY valor
         """, (idParametro,))
         return cur.fetchall()
+    
+def guardarCurvas(idParametro: int, puntos: list[tuple[float, float]]):
+    valores_x = [p[0] for p in puntos]
+    if len(set(valores_x)) != len(valores_x):            
+        raise ValueError("Los valores de 'valor' deben ser únicos para cada punto de la curva.")
+    
+    with connection() as conn:
+        cur = getCursor(conn)
+        cur.execute("""
+            DELETE FROM curva_subindice
+            WHERE id_parametro = %s
+        """, (idParametro,))
+        
+        for valor, subindice in puntos:
+            cur.execute("""
+                INSERT INTO curva_subindice (id_parametro, valor, subindice)
+                VALUES (%s, %s, %s)
+            """, (idParametro, valor, subindice))
+
+    recargar_curva(idParametro)
+
+
+
+

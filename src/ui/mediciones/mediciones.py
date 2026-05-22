@@ -36,6 +36,8 @@ class CargarMediciones(ctk.CTkFrame):
         ).pack(pady=20)
 
         crear_subtitulo(self.scroll_container, "Río a Medir")
+        crear_aclaracion(self.scroll_container, 
+                         "Orden de selección: Provincia > Ciudad > Río > Zona")
 
         self.prov = ctk.CTkComboBox(self.scroll_container, values=self.provincias,
                                     width=300, height=30, corner_radius=5,
