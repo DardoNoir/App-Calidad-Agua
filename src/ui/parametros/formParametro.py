@@ -149,8 +149,8 @@ class FormParametro(ctk.CTkFrame):
         btn_eliminar = ctk.CTkButton(
             fila,
             text="X",
-            width=40,
-            height=20,
+            width=30,
+            height=25,
             text_color="#ffffff",
             fg_color="#FF0000",
             hover_color="#f8b808",
