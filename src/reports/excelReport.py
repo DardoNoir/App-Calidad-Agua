@@ -170,14 +170,14 @@ def generarExcelMediciones(
 
         ws_datos = cast(
             Worksheet,
-            wb.create_sheet(f"Datos {idMedicion}")
+            wb.create_sheet(f"Datos {lugar['zona']} - {idMedicion}")
         )
 
         ws_datos.append(["Medición N°", medicion["id"]])
         ws_datos.append(["Fecha", format_fecha_display(medicion["fecha_medicion"])])
         ws_datos.append([
             "Lugar",
-            f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpo_agua']}"
+            f"{lugar['provincia']} - {lugar['ciudad']} - {lugar['cuerpo_agua']} - {lugar['zona']}"
         ])
         ws_datos.append(["Tomada por", usuario["nombre_usuario"]])
         ws_datos.append(["ICA", medicion["ica"]])
@@ -211,7 +211,7 @@ def generarExcelMediciones(
 
         ws_graficos = cast(
             Worksheet,
-            wb.create_sheet(f"Graficos {idMedicion}")
+            wb.create_sheet(f"Graficos {lugar['zona']} - {idMedicion}")
         )
 
         fila_imagen = 1

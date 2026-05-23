@@ -139,7 +139,7 @@ class DescargarMediciones(ctk.CTkFrame):
     def buscar_mediciones(self):
         user = session.currentUser    
         if user is None:
-            raise ValueError("No hay usuarioa autenticado")
+            raise ValueError("No hay usuario autenticado")
         
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -178,8 +178,11 @@ class DescargarMediciones(ctk.CTkFrame):
             messagebox.showerror("Error", "Solo seleccionar una medición por reporte")
             return
         id_medicion = list(self.selecciones)[0]
-        ruta = Path("Reporte de Medición.pdf")
-
+        med = traerMedicionPorId(id_medicion)
+        if med != None:
+            lugar = traerLugarPorId(med["id_lugar"])
+            if lugar != None:
+                ruta = Path(f"Reporte de Medición {lugar['zona']} - {id_medicion}.pdf")
 
         generarReporte(
             idMedicion=id_medicion,
@@ -193,8 +196,12 @@ class DescargarMediciones(ctk.CTkFrame):
             messagebox.showerror("Error", "No se han seleccionado Mediciones")
 
         ids = list(self.selecciones)
-
-        ruta = Path("mediciones_exportadas.xlsx")
+        id_med = ids[0]
+        med = traerMedicionPorId(id_med)
+        if med != None:
+            lugar = traerLugarPorId(med["id_lugar"])
+            if lugar != None:
+                ruta = Path(f"Mediciones {lugar['cuerpo_agua']}.xlsx")
 
         generarExcelMediciones(
             idsMediciones=ids,

@@ -8,37 +8,21 @@ from contextlib import contextmanager
 
 def resource_path(relative_path):
     """
-    Devuelve la ruta absoluta compatible
-    con desarrollo y PyInstaller
+    Obtiene la ruta absoluta al recurso,
+    compatible con desarrollo y PyInstaller
     """
 
-    if getattr(sys, 'frozen', False):
-        # Ejecutable PyInstaller
-        base_path = sys._MEIPASS
-    else:
-        # Proyecto en desarrollo
-        base_path = os.path.dirname(
-            os.path.dirname(
-                os.path.dirname(__file__)
-            )
-        )
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
 
     return os.path.join(base_path, relative_path)
 
 
-# Cargar variables de entorno
-dotenv_path = resource_path(".env")
-
-print("Cargando .env desde:", dotenv_path)
-
-load_dotenv(dotenv_path)
+# Cargar .env
+load_dotenv(resource_path(".env"))
 
 
 @contextmanager
 def connection():
-
-    print("HOST:", os.getenv("DB_HOST"))
-
     conn = psycopg2.connect(
         host=os.getenv("DB_HOST"),
         database=os.getenv("DB_NAME"),
